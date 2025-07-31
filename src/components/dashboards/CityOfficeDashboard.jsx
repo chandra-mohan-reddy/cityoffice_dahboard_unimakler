@@ -38,11 +38,9 @@ const FranchiseDashboard = () => {
 
   const dashboardItems = [
     { title: 'Assigned Projects', count: dashboardCounts.projectsCount, route: '/projects' },
-    // { title: 'Sale Executives', count: dashboardCounts.salesExecutiveCount, route: '/saleslist' },
     { title: 'Lead Count', count: dashboardCounts.leadsCount, route: '/leads/list' },
     { title: 'Deals Closed', count: dashboardCounts.soldCount, route: '' },
     { title: 'Site Visits', count: dashboardCounts.franchiseCount, route: '' },
-    // { title: 'General Manager', count: dashboardCounts.franchiseCount,  route: '' },
     { title: 'Team Leader', count: dashboardCounts.franchiseCount, route: '' },
     { title: 'Sales Executive', count: dashboardCounts.franchiseCount, route: '' },
   ];
@@ -58,18 +56,14 @@ const FranchiseDashboard = () => {
               <h4>
                 Manager Name
               </h4>
-              </div>
+            </div>
             <div className="ad-v2-hom-info">
               <div className="ad-v2-hom-info-inn">
                 <ul className="Homesb1">
                   <div className="profile-det-titls d-flex justify-content-between align-items-center">
-                    {/* <div className="mb-4">
-                      <h3 className="PremiumAccount1 mb-1 pb-1">Franchise Type: {userData.franchiseType}</h3>
-                      <h3 className="PremiumAccount1 mb-1 pb-1">Franchise Class:{userData.franchiseClass}</h3>
-                    </div> */}
                     <div>
                       <h2 className="PremiumAccount1 mb-0 pb-0 dt">
-                        {userData.franchise_tier === 2 ? userData.franchise_brand_name : userData.franchise_name}
+                        {userData.city_office_name}
                       </h2>
                     </div>
                   </div>

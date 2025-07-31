@@ -12,12 +12,6 @@ const Profile = () => {
     case 'City Admin':
       profile = <CityOfficeProfile user={userData} />
       break;
-    case 'franchise':
-      profile = <FranchiseProfile user={userData} />
-      break;
-    case 'Super Franchise':
-      profile = <FranchiseProfile user={userData} />
-      break;
     default:
       profile = <></>
       break;

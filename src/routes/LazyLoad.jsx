@@ -7,7 +7,6 @@ const LazyLoad = () => {
 
   // * Auth pages
 
-  const Advertise = lazy(() => import(`../auth/Advertise.jsx`));
   const Login = lazy(() => import(`../auth/Login.jsx`));
   const Otp = lazy(() => import(`../auth/Otp.jsx`));
 
@@ -23,18 +22,7 @@ const LazyLoad = () => {
   const AddGenaralmanager = lazy(() => import(`../pages/SaleExecutive/AddGenaralmanager`));
   const AddTeamleader = lazy(() => import(`../pages/SaleExecutive/AddTeamleader`));
   const AddChannelPartner = lazy(() => import(`../pages/ChannelPartner/AddChannelPartner`));
-  // const SalesLists = lazy(() => import(`../pages/SaleExecutive/SalesLists`));
 
-  // -------------------//
-
-  // const ChannelProfile = lazy(() => import(`../pages/ChannelProfile`));
-
-
-
-  //-------------------- premium -listings----------//
-
-  // const EditProject = lazy(() => import(`../pages/projects/ProjectEdit`))
-  //---------------------
 
   const SalesLists = lazy(() => import(`../pages/SaleExecutive/SalesLists`));
 
@@ -89,35 +77,6 @@ const LazyLoad = () => {
         <Route path="/teamleader" element={<AddTeamleader />} />
         <Route path="/generalmanager" element={<AddGenaralmanager />} />
         <Route path="/addchannelpartner" element={<AddChannelPartner />} />
-
-
-
-        {/* -------------------- premium -listings---------- */}
-        {/* <Route path="/projects" element={<ProjectsList />} />
-        <Route path='/editProject' element={<EditProject />} /> */}
-
-        {/* -------------------- premium -listings---------- */}
-        {/* <Route path='/AddListing' element={<AddMetaListing />} />
-        <Route path="/projects" element={<ProjectsList />} />
-
-        <Route path="/buysalepackage" element={<BuysalePakage />} />
-        <Route path="/activesalepackage" element={<Activesalepakage />} />
-        <Route path="/projects" element={<ProjectsList />} />
-        <Route path="/buyrentalspackages" element={<Buyrentpackages />} />
-        <Route path="/activerentpackages" element={<Activerentpackage />} />
-        <Route path="/postnewrentals" element={<Postnewrentals />} />
-        <Route path="/packageresponse/:id" element={<PackageResponsive />} />
-        <Route path="/meta-activepackage" element={<Activepakage />} />
-        
-        
-        <Route path="/removesale" element={<RemovesaleExe />} />
-
-        
-
-        
-
-        {/* <Route path="/importleads" element={<ImportLeads />} /> */}
-        {/* <Route path="/channelprofile" element={<ChannelProfile />} /> */}
 
         <Route path="/salesexe" element={<SalesLists />} />
         <Route path="/franchise/create" element={<CreateFranchise />} />

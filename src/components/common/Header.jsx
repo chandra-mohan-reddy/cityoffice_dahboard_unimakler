@@ -20,8 +20,7 @@ const Header = () => {
     <>
       <header id="page-topbar">
         <div className="navbar-header d-flex justify-content-between align-items-center pr-3">
-          {/* <div className='hed_title'><h4>{role == 'City Admin' ? 'City Office': role}</h4></div> */}
-          <div className='hed_title'><h4>Team Leader</h4></div>
+          <div className='hed_title'><h4>{role == 'City Admin' ? 'City Office' : role}</h4></div>
           <div className='d-flex align-items-center'>
             <Dropdown align="end">
               <Dropdown.Toggle variant="link" id="dropdown-profile" className="p-0 border-0 shadow-none">
