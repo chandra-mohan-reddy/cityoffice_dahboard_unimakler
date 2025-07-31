@@ -25,22 +25,6 @@ const LazyLoad = () => {
   const AddChannelPartner = lazy(() => import(`../pages/ChannelPartner/AddChannelPartner`));
   // const SalesLists = lazy(() => import(`../pages/SaleExecutive/SalesLists`));
 
-
-  //////////////////////////////////// Masters //////////////////////////////////////////
-
-  // const BookaStall = lazy(() => import(`../pages/stalls/BookaStall`));
-  // const CompletedExpo = lazy(() => import(`../pages/expo/CompletedExpo.jsx`));
-  // const FutureExpo = lazy(() => import(`../pages/expo/FutureExpo.jsx`));
-  // const OngoingExpo = lazy(() => import(`../pages/expo/OngoingExpo.jsx`));
-  // const PendingExpo = lazy(() => import(`../pages/expo/PendingExpo.jsx`));
-  // const AddExecutive = lazy(() => import(`../pages/stalls/AddExecutive.jsx`));
-  // const ViewDetails = lazy(() => import(`../pages/expo/ViewDetails.jsx`));
-  // const FeatureDetails = lazy(() => import(`../pages/stalls/FeatureDetails.jsx`));
-  // const StallManagement = lazy(() => import(`../pages/stalls/StallManagement.jsx`));
-  // const AllexpoListings = lazy(() => import(`../pages/expo/AllexpoListings.jsx`));
-  // const Features = lazy(() => import(`../pages/stalls/Features.jsx`));
-  // const AddProperties = lazy(() => import(`../pages/properties/AddProperties`))
-
   // -------------------//
 
   // const ChannelProfile = lazy(() => import(`../pages/ChannelProfile`));
@@ -50,7 +34,6 @@ const LazyLoad = () => {
   //-------------------- premium -listings----------//
 
   // const EditProject = lazy(() => import(`../pages/projects/ProjectEdit`))
-  // const AddMetaListing = lazy(() => import(`../pages/MetaverseListings/AddListings`))
   //---------------------
 
   const SalesLists = lazy(() => import(`../pages/SaleExecutive/SalesLists`));
@@ -107,41 +90,15 @@ const LazyLoad = () => {
         <Route path="/generalmanager" element={<AddGenaralmanager />} />
         <Route path="/addchannelpartner" element={<AddChannelPartner />} />
 
-        {/* <Route path="/airpropxdashboard" element={<Dashboard />} />
-        <Route path="bookastall" element={<BookaStall />} />
-        <Route path="completed-expo" element={<CompletedExpo />} />
-        <Route path="future-expo" element={<FutureExpo />} />
-        <Route path="ongoing-expo" element={<OngoingExpo />} />
-        <Route path="pending-expo" element={<PendingExpo />} />
-        <Route path="AddExecutive" element={<AddExecutive />} />
-        <Route path="viewdetails" element={<ViewDetails />} />
-        <Route path="featuredetails" element={<FeatureDetails />} />
-        <Route path="stallmanagement" element={<StallManagement />} />
-        <Route path="listing-expos" element={<AllexpoListings />} />
-        <Route path="features" element={<Features />} /> */}
-
-
 
 
         {/* -------------------- premium -listings---------- */}
         {/* <Route path="/projects" element={<ProjectsList />} />
         <Route path='/editProject' element={<EditProject />} /> */}
 
-
-        {/* --------------------- properties listings ------------------- */}
-        {/* <Route path='/properties' element={<AddProperties />} /> */}
-
         {/* -------------------- premium -listings---------- */}
         {/* <Route path='/AddListing' element={<AddMetaListing />} />
-        <Route path="/projectname" element={<ProjectName />} />
-        <Route path="/masterprojects" element={<MasterProjects />} />
-        <Route path="/addprojectname" element={<AddProjectName />} />
-        <Route path="/addprojects" element={<AddProjects />} />
-        <Route path="/addlistings" element={<AddListings />} />
         <Route path="/projects" element={<ProjectsList />} />
-        <Route path="/activeprojects" element={<ActiveProjects />} />
-        <Route path="/inactiveprojects" element={<InActiveProjects />} />
-        <Route path="/ProjectDetails" element={<ProjectDetails />} />
 
         <Route path="/buysalepackage" element={<BuysalePakage />} />
         <Route path="/activesalepackage" element={<Activesalepakage />} />
@@ -151,7 +108,6 @@ const LazyLoad = () => {
         <Route path="/postnewrentals" element={<Postnewrentals />} />
         <Route path="/packageresponse/:id" element={<PackageResponsive />} />
         <Route path="/meta-activepackage" element={<Activepakage />} />
-        <Route path="/meta-buypackage" element={<BuyPakage />} />
         
         
         <Route path="/removesale" element={<RemovesaleExe />} />
