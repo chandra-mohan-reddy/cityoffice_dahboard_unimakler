@@ -20,7 +20,9 @@ const LazyLoad = () => {
   const AddsalesExecutive = lazy(() => import(`../pages/SaleExecutive/AddsalesExecutive`));
   const AddCitymanager = lazy(() => import(`../pages/SaleExecutive/AddCitymanager`));
   const AddGenaralmanager = lazy(() => import(`../pages/SaleExecutive/AddGenaralmanager`));
-  const AddTeamleader = lazy(() => import(`../pages/SaleExecutive/AddTeamleader`));
+
+  const AddTeamleader = lazy(() => import(`../pages/Teamleader/AddTeamleader.jsx`));
+  
   const AddChannelPartner = lazy(() => import(`../pages/ChannelPartner/AddChannelPartner`));
 
 

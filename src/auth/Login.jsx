@@ -323,7 +323,7 @@ const Login = () => {
                           className="theme-btn"
                           type="button"
                           onClick={handleSubmit}
-                          // disabled={!isOtpVerified}
+                        // disabled={!isOtpVerified}
                         >
                           Sign In
                         </button>

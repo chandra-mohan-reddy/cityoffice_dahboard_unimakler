@@ -1,8 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import SuperFranchiseSidebar from '../sidebars/SuperFranchiseSidebar';
 import CityAdminSidebar from '../sidebars/CityAdminSidebar';
-import FranchiseSidebar from '../sidebars/FranchiseSidebar'
+import TeamLederSidebar from '../sidebars/TeamLeaderSidebar'
 const Sidebars = () => {
 
   const userData = useSelector((state) => state.user.userData)
@@ -13,11 +12,8 @@ const Sidebars = () => {
     case 'City Admin':
       SideBar = <CityAdminSidebar user={userData} />
       break;
-    case 'Franchise':
-      SideBar = <FranchiseSidebar user={userData} role={role} />
-      break;
-    case 'Super Franchise':
-      SideBar = <SuperFranchiseSidebar user={userData} role={role} />
+    case 'Team Leader':
+      SideBar = <TeamLederSidebar user={userData} role={role} />
       break;
     default:
       SideBar = null;

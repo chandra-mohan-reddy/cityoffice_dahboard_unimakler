@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { FaEdit } from 'react-icons/fa';
@@ -9,9 +9,44 @@ import Loader from '../../components/common/Loader';
 import { masterClient, authClient } from '../../utils/httpClient';
 import { toastError, toastSuccess } from '../../utils/toast';
 import { IoCloseSharp } from "react-icons/io5";
+import DateModal from '../../components/reusable/DateModal';
 
-function AddTeamleader({ ...props }) {
+function AddTeamleader() {
   const userData = useSelector((state) => state.user.userData);
+
+  // handling date model
+  const [showDate, setShowDate] = useState(false)
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [dateValue, setDateValue] = useState('');
+
+  // Modal handlers
+  const handleDateModelClose = useCallback(() => {
+    setShowDate(false);
+    setSelectedProject(null);
+    setDateValue('');
+  }, []);
+
+  // project assignment
+  const handleProjectAssignment = useCallback(() => {
+    if (!selectedProject || !dateValue) {
+      toastError('Please select a date');
+      return;
+    }
+    const newProject = {
+      project_id: selectedProject.project_id,
+      projectName: selectedProject.projectName,
+      leads_start_date: dateValue
+    };
+    setForm(prev => ({
+      ...prev,
+      projects: [...prev.projects, newProject],
+      project_id: "",
+    }));
+
+    handleDateModelClose();
+  }, [selectedProject, dateValue, handleDateModelClose]);
+
+
 
   const [formState, setFormState] = useState(0);
   const [show, setShow] = useState(false);
@@ -23,7 +58,7 @@ function AddTeamleader({ ...props }) {
   const [assignedProjects, setAssignedProjects] = useState([]);
   const [unAssignedProjects, setUnAssignedProjects] = useState([]);
   // ? sales executive variables
-  const [salesExecutives, setSalesExecutives] = useState([]);
+  const [teamLeaders, setTeamLeaders] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -32,7 +67,7 @@ function AddTeamleader({ ...props }) {
     setShow(true);
     setFormState(state);
     if (state === 1) {
-      getSalesExecutiveById(id);
+      getTeamLeadersById(id);
     } else {
       setForm({ projects: [] });
     }
@@ -41,37 +76,29 @@ function AddTeamleader({ ...props }) {
   const hanldeForm = (e) => {
     const { name, value } = e.target;
 
+    // Handle project selection
+    if (name === 'project') {
+      const selectedProject = unAssignedProjects.find((project) => project.project_id == value);
+
+      // Ensure the project exists
+      if (selectedProject) {
+        const isDuplicate = form.projects.some(
+          (project) => project.project_id === selectedProject.project_id
+        );
+
+        if (!isDuplicate) {
+          setUnAssignedProjects((prev) =>
+            prev.filter((project) => project.project_id !== selectedProject.project_id)
+          );
+          setSelectedProject(selectedProject);
+          setShowDate(true);
+        }
+      }
+    }
+
     setForm((prev) => {
       // Temporarily store the updated field
       const updatedForm = { ...prev, [name]: value };
-
-      if (name === 'project') {
-        const selectedProject = unAssignedProjects.find((project) => project.project_id == value);
-
-        // Ensure the project exists
-        if (selectedProject) {
-          const isDuplicate = prev.projects.some(
-            (project) => project.project_id === selectedProject.project_id
-          );
-
-          if (!isDuplicate) {
-            const newProject = {
-              project_id: selectedProject.project_id,
-              projectName: selectedProject.projectName
-            };
-
-            console.log(newProject);
-            setUnAssignedProjects((prev) =>
-              prev.filter((project) => project.project_id !== selectedProject.project_id)
-            );
-            return {
-              ...updatedForm,
-              projects: [...prev.projects, newProject],
-              project: ''
-            };
-          }
-        }
-      }
 
       return updatedForm;
     });
@@ -102,14 +129,14 @@ function AddTeamleader({ ...props }) {
     }
   };
 
-  const getSalesExecutives = async () => {
+  const getTeamLeaders = async () => {
     setLoading(true);
     try {
-      let res = await masterClient.get(`/city-office/${userData?.id}/executives`);
+      let res = await masterClient.get(`/city-office/${userData?.id}/team-leaders`);
       if (res?.data?.status && res?.data?.data.length > 0) {
-        setSalesExecutives(res?.data?.data);
+        setTeamLeaders(res?.data?.data);
       } else {
-        setSalesExecutives([]);
+        setTeamLeaders([]);
       }
     } catch (err) {
       console.error('Error getting Team Leader', err);
@@ -139,7 +166,7 @@ function AddTeamleader({ ...props }) {
 
   useEffect(() => {
     if (userData) getAssignedProjects();
-    getSalesExecutives();
+    getTeamLeaders();
   }, []);
 
   const validateForm = () => {
@@ -280,27 +307,43 @@ function AddTeamleader({ ...props }) {
     setLoading(true);
     let payload = {
       ...form,
-      role_id: 34,
-      city_office_id: userData?.id
+      role_id: 35,
+      city_office_id: userData?.id,
+
+      // User Login Details
+      user: {
+        role_id: 35,
+        entity_type: 'team_leader',
+        firstname: form.full_name,
+        company_name: userData?.city_office_name,
+        username: form.username,
+        password: form.password,
+        email: form.primary_email,
+        mobile: form.primary_mobile,
+        created_by: userData?.id
+      },
+      // Projects Mapping
+      projects: form.projects.map((each) => ({
+        project_id: each.project_id,
+        leads_start_date: each.leads_start_date
+      })),
     };
+
     try {
       let res;
       if (formState === 0) {
-        res = await masterClient.post('/city-office/sales-executive', payload);
+        res = await masterClient.post('/city-office/team-leaders', payload);
       } else {
-        res = await masterClient.put(`/city-office/sales-executive/${form.id}`, payload);
+        res = await masterClient.put(`/city-office/team-leaders/${form.id}`, payload);
       }
 
       if (res?.data?.status) {
-        if (formState === 0) {
-          createLogin(res?.data?.data?.id);
+        if (formState !== 0) {
+          addAssignedProjects(res?.data?.data)
         }
-        getSalesExecutiveById(userData.id);
         toastSuccess(formState == 0 ? 'Created' : 'Updated' + 'SuccessFully');
         setForm({ projects: [] });
-        getAssignedProjects();
         setShow(false);
-        addAssignedProjects(res?.data?.data?.id);
       }
     } catch (err) {
       console.error(`Error Posting Sales Executive =>`, err);
@@ -334,12 +377,7 @@ function AddTeamleader({ ...props }) {
     };
     setLoading(true);
     try {
-      let res;
-      if (formState === 0) {
-        res = await masterClient.post('users-projects-mapping', payload);
-      } else {
-        res = await masterClient.post('updateProjectAssigns', payload);
-      }
+      let res = await masterClient.post('updateProjectAssigns', payload);
       if (res?.data?.status) {
         toastSuccess(formState == 0 ? 'Projects Assigned' : 'Projects Updated' + 'SuccessFully');
       }
@@ -351,44 +389,12 @@ function AddTeamleader({ ...props }) {
     }
   };
 
-  const createLogin = async (id) => {
-    let body = {
-      role_id: 34,
-      entity_id: id,
-      entity_type: 'Sales Executive',
-      firstname: form.full_name,
-      mobile: form.primary_mobile,
-      username: form.username,
-      password: form.re_type_password,
-      email: form.primary_email,
-      created_by: userData?.id
-    };
-    setLoading(true);
-    try {
-      let createUser = await authClient.post('register', body);
-      if (createUser?.data?.status) {
-        toastSuccess('Added Successfully');
-        allCountries();
-        getProjects();
-        setForm({
-          projects: []
-        });
-        setShow(false);
-      }
-    } catch (err) {
-      console.error(`error creating the login details ${err}`);
-      toastError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
 
   // ?  get sales executive by id
-  const getSalesExecutiveById = async (id) => {
+  const getTeamLeadersById = async (id) => {
     setLoading(true);
     try {
-      let res = await masterClient.get(`/city-office/sales-executive/${id}`);
+      let res = await masterClient.get(`/city-office/team-leaders/${id}`);
       if (res?.data?.status) {
         const projects = res?.data?.data?.projects || [];
 
@@ -418,16 +424,16 @@ function AddTeamleader({ ...props }) {
     }
   };
 
-  const RemoveSalesExec = async (id) => {
+  const RemoveTeamlead = async (id) => {
     setLoading(true);
     try {
-      let res = await masterClient.delete(`/city-office/sales-executive/${id}`);
+      let res = await masterClient.delete(`/city-office/team-leaders/${id}`);
       if (res?.data?.status) {
         toastSuccess('Deleted Successfully');
-        getSalesExecutives();
+        getTeamLeaders();
       }
     } catch (err) {
-      console.error(`Error deleting Sales Executive =>`, err);
+      console.error(`Error deleting Team leaders =>`, err);
       toastError('Error Try Again');
     } finally {
       setLoading(false);
@@ -438,7 +444,7 @@ function AddTeamleader({ ...props }) {
     const payload = {
       project_id: projectId,
       user_id: execId,
-      user_type: 34,
+      user_type: 35,
       updated_by: userData?.id,
     }
 
@@ -505,8 +511,8 @@ function AddTeamleader({ ...props }) {
                               </tr>
                             </thead>
                             <tbody className="tbody-franchise-performance">
-                              {salesExecutives.length > 0 ? (
-                                salesExecutives.map((ele, index) => (
+                              {teamLeaders.length > 0 ? (
+                                teamLeaders.map((ele, index) => (
                                   <tr className="text-center" key={index}>
                                     <td>
                                       <span className="text-info">{ele.full_name} </span>
@@ -520,7 +526,7 @@ function AddTeamleader({ ...props }) {
                                         <FaEdit />
                                       </button>
                                       <button className="btn-danger btn mt-0">
-                                        <MdDelete onClick={() => RemoveSalesExec(ele.id)} />
+                                        <MdDelete onClick={() => RemoveTeamlead(ele.id)} />
                                       </button>
                                     </td>
                                   </tr>
@@ -746,27 +752,31 @@ function AddTeamleader({ ...props }) {
                     {formErrors.secondary_mobile && (<span className="text-danger">{formErrors.secondary_mobile}</span>)}
                   </div>
                 </div>
- <div className="col-md-12">
+
+                {/* <div className="col-md-12">
                   <h5 className="asint">Assign To <span className="req">*</span></h5>
                 </div>
-            
+
                 <div className="col-md-6 mb-3">
                   <div class="form-floating">
-                  <select class="form-select" name="project" >
-                    <option value="default">Select</option>
-                    <option value="default">General Manager</option>
-                    <option value="138">City Office Manager</option>
-                  </select>
+                    <select class="form-select" name="project" >
+                      <option value="default">Select</option>
+                      <option value="default">General Manager</option>
+                      <option value="138">City Office Manager</option>
+                    </select>
                   </div>
                 </div>
-                    <div className="col-md-6 mb-3">
+
+                <div className="col-md-6 mb-3">
                   <div class="form-floating">
-                  <select class="form-select" name="project" >
-                    <option value="default">Select General Manager</option>
-                    <option value="138">Mohan Reddy</option>
-                  </select>
+                    <select class="form-select" name="project" >
+                      <option value="default">Select General Manager</option>
+                      <option value="138">Mohan Reddy</option>
+                    </select>
                   </div>
-                </div>
+                </div> */}
+
+
                 <div className="col-md-12">
                   <h5 className="asint">{formState === 1 ? 'Edit' : 'Assign'} Projects <span className="req">*</span></h5>
                 </div>
@@ -970,6 +980,14 @@ function AddTeamleader({ ...props }) {
           </div>
         </Offcanvas.Body>
       </Offcanvas>
+
+      <DateModal
+        show={showDate}
+        onClose={handleDateModelClose}
+        date={dateValue}
+        setDate={setDateValue}
+        onAccept={handleProjectAssignment}
+      />
     </>
   );
 }

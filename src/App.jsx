@@ -17,7 +17,7 @@ import { useDispatch } from "react-redux";
 import { setUserRole, setUserData } from "./store/slices/UserSlice";
 import { toastError } from "./utils/toast";
 
-const accessRoles = ['City Admin', 'Super Franchise', 'Franchise', 'Channel Parnter']
+const accessRoles = ['City Admin', 'Team Leader']
 
 export const ValidateToken = async (dispatch, navigate, location, setLoader) => {
   const token = localStorage.getItem('adminToken');
