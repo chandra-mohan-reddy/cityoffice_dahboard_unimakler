@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { FaEdit } from 'react-icons/fa';
@@ -9,10 +9,45 @@ import Loader from '../../components/common/Loader';
 import { masterClient, authClient } from '../../utils/httpClient';
 import { toastError, toastSuccess } from '../../utils/toast';
 import { IoCloseSharp } from "react-icons/io5";
+import DateModal from '../../components/reusable/DateModal';
 
 function AddsalesExecutive({ ...props }) {
   const userData = useSelector((state) => state.user.userData);
+  const userRole = useSelector((state) => state.user.role);
 
+  // handling date model
+  const [showDate, setShowDate] = useState(false)
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [dateValue, setDateValue] = useState('');
+
+  // Modal handlers
+  const handleDateModelClose = useCallback(() => {
+    setShowDate(false);
+    setSelectedProject(null);
+    setDateValue('');
+  }, []);
+
+  // project assignment
+  const handleProjectAssignment = useCallback(() => {
+    if (!selectedProject || !dateValue) {
+      toastError('Please select a date');
+      return;
+    }
+    const newProject = {
+      project_id: selectedProject.project_id,
+      projectName: selectedProject.projectName,
+      leads_start_date: dateValue
+    };
+    setForm(prev => ({
+      ...prev,
+      projects: [...prev.projects, newProject],
+      project_id: "",
+    }));
+
+    handleDateModelClose();
+  }, [selectedProject, dateValue, handleDateModelClose]);
+
+  const [loading, setLoading] = useState(false);
   const [formState, setFormState] = useState(0);
   const [show, setShow] = useState(false);
   const [form, setForm] = useState({
@@ -24,7 +59,7 @@ function AddsalesExecutive({ ...props }) {
   const [unAssignedProjects, setUnAssignedProjects] = useState([]);
   // ? sales executive variables
   const [salesExecutives, setSalesExecutives] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [teamLeaders, setTeamLeaders] = useState([]);
 
   const handleClose = () => setShow(false);
 
@@ -41,38 +76,30 @@ function AddsalesExecutive({ ...props }) {
   const hanldeForm = (e) => {
     const { name, value } = e.target;
 
+    // Handle project selection
+    if (name === 'project') {
+      const selectedProject = unAssignedProjects.find((project) => project.project_id == value);
+
+      // Ensure the project exists
+      if (selectedProject) {
+        const isDuplicate = form.projects.some(
+          (project) => project.project_id === selectedProject.project_id
+        );
+
+        if (!isDuplicate) {
+          setUnAssignedProjects((prev) =>
+            prev.filter((project) => project.project_id !== selectedProject.project_id)
+          );
+          setSelectedProject(selectedProject);
+          setShowDate(true);
+        }
+      }
+    }
+
+
     setForm((prev) => {
       // Temporarily store the updated field
       const updatedForm = { ...prev, [name]: value };
-
-      if (name === 'project') {
-        const selectedProject = unAssignedProjects.find((project) => project.project_id == value);
-
-        // Ensure the project exists
-        if (selectedProject) {
-          const isDuplicate = prev.projects.some(
-            (project) => project.project_id === selectedProject.project_id
-          );
-
-          if (!isDuplicate) {
-            const newProject = {
-              project_id: selectedProject.project_id,
-              projectName: selectedProject.projectName
-            };
-
-            console.log(newProject);
-            setUnAssignedProjects((prev) =>
-              prev.filter((project) => project.project_id !== selectedProject.project_id)
-            );
-            return {
-              ...updatedForm,
-              projects: [...prev.projects, newProject],
-              project: ''
-            };
-          }
-        }
-      }
-
       return updatedForm;
     });
   };
@@ -102,10 +129,26 @@ function AddsalesExecutive({ ...props }) {
     }
   };
 
+  const getTeamLeaders = async () => {
+    setLoading(true)
+    try {
+      let res = await masterClient.get(`/city-office/${userData?.id}/team-leaders`);
+      if (res?.data?.status && res?.data?.data.length > 0) {
+        setTeamLeaders(res?.data?.data);
+      } else {
+        setTeamLeaders([]);
+      }
+    } catch (err) {
+      console.error('Error getting Sales Executives', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const getSalesExecutives = async () => {
     setLoading(true);
     try {
-      let res = await masterClient.get(`/city-office/${userData?.id}/executives`);
+      let res = await masterClient.get(`/city-office/executives`);
       if (res?.data?.status && res?.data?.data.length > 0) {
         setSalesExecutives(res?.data?.data);
       } else {
@@ -125,7 +168,7 @@ function AddsalesExecutive({ ...props }) {
       let res = await masterClient.get(`/users-projects-mapping/${userData.id}`);
       if (res?.data?.status && res?.data?.data.length > 0) {
         setAssignedProjects(res?.data?.data);
-        const projects = res?.data?.data.filter((project) => project.executive === null);
+        const projects = res?.data?.data.filter((project) => project.assigned_user === null);
         setUnAssignedProjects(projects);
       }
     } catch (err) {
@@ -140,6 +183,7 @@ function AddsalesExecutive({ ...props }) {
   useEffect(() => {
     if (userData) getAssignedProjects();
     getSalesExecutives();
+    getTeamLeaders();
   }, []);
 
   const validateForm = () => {
@@ -275,14 +319,31 @@ function AddsalesExecutive({ ...props }) {
       }
     }
 
-
-
-    setLoading(true);
+    // setLoading(true);
     let payload = {
       ...form,
       role_id: 34,
-      city_office_id: userData?.id
+      city_office_id: userData?.id,
+
+      // User Login Details
+      user: {
+        role_id: 34,
+        entity_type: 'sales_executive',
+        firstname: form.full_name,
+        company_name: userData?.city_office_name,
+        username: form.username,
+        password: form.password,
+        email: form.primary_email,
+        mobile: form.primary_mobile,
+        created_by: userData?.id
+      },
+      // Projects Mapping
+      projects: form.projects.map((each) => ({
+        project_id: each.project_id,
+        leads_start_date: each.leads_start_date
+      })),
     };
+
     try {
       let res;
       if (formState === 0) {
@@ -292,31 +353,38 @@ function AddsalesExecutive({ ...props }) {
       }
 
       if (res?.data?.status) {
-        if (formState === 0) {
-          createLogin(res?.data?.data?.id);
+        if (formState !== 0) {
+          addAssignedProjects(res?.data?.data)
         }
-        getSalesExecutiveById(userData.id);
+        getAssignedProjects()
         toastSuccess(formState == 0 ? 'Created' : 'Updated' + 'SuccessFully');
         setForm({ projects: [] });
-        getAssignedProjects();
         setShow(false);
-        addAssignedProjects(res?.data?.data?.id);
       }
     } catch (err) {
-      console.error(`Error Posting Sales Executive =>`, err);
-      if (err?.response?.data?.data) {
-        const errors = err?.response?.data?.data;
-        let errorMessages = [];
+      console.error('Error creating city office:', err);
 
-        for (let key in errors) {
-          if (Array.isArray(errors[key])) {
-            errorMessages.push(...errors[key]);
+      const errorsFromAPI = err?.response?.data?.data;
+
+      if (errorsFromAPI && typeof errorsFromAPI === 'object') {
+        const fieldErrors = {};
+        let toastShown = false;
+
+        Object.entries(errorsFromAPI).forEach(([field, messages]) => {
+          if (Array.isArray(messages)) {
+            fieldErrors[field] = messages[0];
+            if (!toastShown) toastError(messages[0]);
+            toastShown = true;
           } else {
-            errorMessages.push(errors[key]);
+            fieldErrors[field] = messages;
+            if (!toastShown) toastError(messages);
+            toastShown = true;
           }
-        }
+        });
 
-        errorMessages.forEach((error) => { toastError(error) });
+        setFormErrors(fieldErrors);
+      } else {
+        toastError('An unexpected error occurred while submitting the form');
       }
     } finally {
       setLoading(false);
@@ -334,12 +402,7 @@ function AddsalesExecutive({ ...props }) {
     };
     setLoading(true);
     try {
-      let res;
-      if (formState === 0) {
-        res = await masterClient.post('users-projects-mapping', payload);
-      } else {
-        res = await masterClient.post('updateProjectAssigns', payload);
-      }
+      let res = await masterClient.post('updateProjectAssigns', payload);
       if (res?.data?.status) {
         toastSuccess(formState == 0 ? 'Projects Assigned' : 'Projects Updated' + 'SuccessFully');
       }
@@ -350,39 +413,6 @@ function AddsalesExecutive({ ...props }) {
       setLoading(false);
     }
   };
-
-  const createLogin = async (id) => {
-    let body = {
-      role_id: 34,
-      entity_id: id,
-      entity_type: 'Sales Executive',
-      firstname: form.full_name,
-      mobile: form.primary_mobile,
-      username: form.username,
-      password: form.re_type_password,
-      email: form.primary_email,
-      created_by: userData?.id
-    };
-    setLoading(true);
-    try {
-      let createUser = await authClient.post('register', body);
-      if (createUser?.data?.status) {
-        toastSuccess('Added Successfully');
-        allCountries();
-        getProjects();
-        setForm({
-          projects: []
-        });
-        setShow(false);
-      }
-    } catch (err) {
-      console.error(`error creating the login details ${err}`);
-      toastError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
 
   // ?  get sales executive by id
   const getSalesExecutiveById = async (id) => {
@@ -472,6 +502,10 @@ function AddsalesExecutive({ ...props }) {
     }
   }
 
+  useEffect(() => {
+    console.log(formErrors)
+  }, [formErrors])
+
   return (
     <>
       {loading && <Loader />}
@@ -484,12 +518,14 @@ function AddsalesExecutive({ ...props }) {
                   <div className="white-box block5-franchise-performance">
                     <div className="widget-header d-flex justify-content-between mb-3">
                       <h4 className="box-title">Sales Executives</h4>
-                      <Button
-                        variant="primary"
-                        onClick={() => handleShow(null, 0)}
-                        className="me-2 mt-0">
-                        + Add
-                      </Button>
+                      {userRole === 'City Admin' &&
+                        <Button
+                          variant="primary"
+                          onClick={() => handleShow(null, 0)}
+                          className="me-2 mt-0">
+                          + Add
+                        </Button>
+                      }
                     </div>
 
                     <div className="row">
@@ -631,6 +667,7 @@ function AddsalesExecutive({ ...props }) {
                           User Name <span className="req">*</span>
                         </label>
                         {formErrors.username && (<span className="text-danger">{formErrors.username}</span>)}
+                        {formErrors?.user?.username && (<span className="text-danger">{formErrors?.user?.username}</span>)}
                       </div>
                     </div>
 
@@ -748,24 +785,31 @@ function AddsalesExecutive({ ...props }) {
                 </div>
 
                 <div className="col-md-12">
-                  <h5 className="asint">Assign To <span className="req">*</span></h5>
+                  <h5 className="asint">Assign Team Leader <span className="req">*</span></h5>
                 </div>
-                 <div className="col-md-6 mb-3">
+                {/* <div className="col-md-6 mb-3">
                   <div class="form-floating">
-                  <select class="form-select" name="project" >
-                    <option value="default">Select</option>
-                    <option value="138">City Office Manager</option>
-                    <option value="default">General Manager</option>
-                    <option value="138">Team Leader</option>
-                  </select>
+                    <select class="form-select" name="project" >
+                      <option value="default">Select</option>
+                      <option value="138">City Office Manager</option>
+                      <option value="default">General Manager</option>
+                      <option value="138">Team Leader</option>
+                    </select>
                   </div>
-                </div>
-                    <div className="col-md-6 mb-3">
+                </div> */}
+                <div className="col-md-6 mb-3">
                   <div class="form-floating">
-                  <select class="form-select" name="project" >
-                    <option value="default">Select General Manager</option>
-                    <option value="138">Mohan Reddy</option>
-                  </select>
+                    <select
+                      class="form-select"
+                      name="team_leader_id"
+                      onChange={hanldeForm}
+                      value={form?.team_leader_id || ''}
+                    >
+                      <option value="default">Select Team leader</option>
+                      {teamLeaders.map((tl, idx) =>
+                        <option key={idx} value={tl.id}>{tl.full_name}</option>
+                      )}
+                    </select>
                   </div>
                 </div>
                 <div className="col-md-12">
@@ -971,6 +1015,14 @@ function AddsalesExecutive({ ...props }) {
           </div>
         </Offcanvas.Body>
       </Offcanvas>
+
+      <DateModal
+        show={showDate}
+        onClose={handleDateModelClose}
+        date={dateValue}
+        setDate={setDateValue}
+        onAccept={handleProjectAssignment}
+      />
     </>
   );
 }

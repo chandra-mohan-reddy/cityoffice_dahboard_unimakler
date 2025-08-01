@@ -20,7 +20,7 @@ const TeamLeaderSidebar = () => {
                         ASSIGNED PROJECTS
                     </MenuItem>
                     <SubMenu label="SALES  EXECUTIVE">
-                        <MenuItem component={<Link to="/salesexe" />} className={isActive('/salesexe') ? 'active' : ''}>
+                        <MenuItem component={<Link to="/executive" />} className={isActive('/salesexe') ? 'active' : ''}>
                             Add Sales Executive
                         </MenuItem>
                     </SubMenu>

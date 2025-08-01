@@ -341,6 +341,7 @@ function AddTeamleader() {
         if (formState !== 0) {
           addAssignedProjects(res?.data?.data)
         }
+        getAssignedProjects()
         toastSuccess(formState == 0 ? 'Created' : 'Updated' + 'SuccessFully');
         setForm({ projects: [] });
         setShow(false);

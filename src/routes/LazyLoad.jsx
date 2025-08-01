@@ -26,8 +26,6 @@ const LazyLoad = () => {
   const AddChannelPartner = lazy(() => import(`../pages/ChannelPartner/AddChannelPartner`));
 
 
-  const SalesLists = lazy(() => import(`../pages/SaleExecutive/SalesLists`));
-
   const CreateFranchise = lazy(() => import(`../pages/Franchise/CreateFranchise`));
   const AssociateLists = lazy(() => import(`../pages/Franchise/FranchiseList.jsx`));
   const RemovedFranchises = lazy(() => import(`../pages/Franchise/RemovedFranchises.jsx`));
@@ -80,7 +78,6 @@ const LazyLoad = () => {
         <Route path="/generalmanager" element={<AddGenaralmanager />} />
         <Route path="/addchannelpartner" element={<AddChannelPartner />} />
 
-        <Route path="/salesexe" element={<SalesLists />} />
         <Route path="/franchise/create" element={<CreateFranchise />} />
         <Route path="/franchise/list" element={<AssociateLists />} />
         {/* <Route path="/franchise/details/:id" element={<FranchiseDetails />} /> */}
