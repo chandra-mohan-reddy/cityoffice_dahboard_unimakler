@@ -58,7 +58,8 @@ const Dashboard = ({ data }) => {
       <div className="ad-v2-hom-info">
         <div className="ad-v2-hom-info-inn mt-0">
           <ul className="p-0">
-      
+       
+
             <div className="row justify-content-center w-80 m-auto">
               {dashboardItems.map((item, index) => (
                 <div key={index} className={`col-md-6 ${item.className || ''}`}>

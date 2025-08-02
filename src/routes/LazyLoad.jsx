@@ -46,6 +46,15 @@ const LazyLoad = () => {
   const DeletedLeads = lazy(() => import(`../pages/LeadManagement/DeletedLeads`));
   const FranInternalTransfer = lazy(() => import(`../pages/FranchiseleadTransfer/FranInternalTransfer`));
   const FranExternalTransfer = lazy(() => import(`../pages/FranchiseleadTransfer/FranExternalTransfer`));
+  
+  const TeamLeaderList = lazy(() => import(`../pages/TeamleadLead/TeamLeaderList`));
+  const TeamLeaderdetails = lazy(() => import(`../pages/TeamleadLead/TeamLeaderdetails`));
+  const SalesExecutiveslist = lazy(() => import(`../pages/SalesExecutives/SalesExecutiveslist`));
+  const SalesExecutivesdetails = lazy(() => import(`../pages/SalesExecutives/SalesExecutivesdetails`));
+  
+
+  // sub-pages
+
   return (
     <Suspense fallback={<Loader />}>
       <Routes>
@@ -91,6 +100,19 @@ const LazyLoad = () => {
         <Route path="/outbox" element={<OutBox />} />
         <Route path="/fran-internal" element={<FranInternalTransfer />} />
         <Route path="/fran-external" element={<FranExternalTransfer />} />
+
+        {/* <Route path="/teamleaderlist" element={<TeamLeaderlist />} />
+        <Route path="/teamleaderdetails" element={<TeamLeaderdetails />} />
+        <Route path="/salesexecutivelist" element={<SalesExecutivelist />} />
+        <Route path="/salesexecutivedetails" element={<SalesExecutivedetails />} /> */}
+        <Route path="/teamleaderlist" element={<TeamLeaderList />} />
+        <Route path="/teamleaderdetails" element={<TeamLeaderdetails />} />
+      
+        <Route path="/saleexecutiveslist" element={<SalesExecutiveslist />} />
+        <Route path="/saleexecutivesdetails" element={<SalesExecutivesdetails />} />
+        {/* <Route path="/teamleaderdetails" element={<TeamLeaderList />} />
+        <Route path="/teamleaderdetails" element={<TeamLeaderList />} />
+        <Route path="/teamleaderdetails" element={<TeamLeaderList />} /> */}
       </Routes>
     </Suspense>
   );

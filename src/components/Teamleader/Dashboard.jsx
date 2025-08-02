@@ -42,9 +42,10 @@ const Dashboard = ({ data }) => {
 
   const dashboardItems = [
     { title: 'Assigned Projects', count: dashboardCounts.projectsCount, route: '/projects' },
-    { title: 'Site Visits', count: dashboardCounts.franchiseCount, route: '' },
+    { title: 'Deals Closed', count: dashboardCounts.franchiseCount, route: '' },
     { title: 'Lead List', count: dashboardCounts.leadsCount, route: '/leads/list' },
-    { title: 'Deals Closed', count: dashboardCounts.soldCount, route: '' },
+    { title: 'Sale Executives', count: dashboardCounts.soldCount, route: '/saleexecutiveslist' },
+
   ];
 
   if (loader) return <Loader />;
@@ -58,7 +59,8 @@ const Dashboard = ({ data }) => {
       <div className="ad-v2-hom-info">
         <div className="ad-v2-hom-info-inn mt-0">
           <ul className="p-0">
-      
+       
+
             <div className="row justify-content-center w-80 m-auto">
               {dashboardItems.map((item, index) => (
                 <div key={index} className={`col-md-6 ${item.className || ''}`}>

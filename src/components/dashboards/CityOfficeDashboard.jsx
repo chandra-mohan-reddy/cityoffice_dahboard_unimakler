@@ -41,7 +41,7 @@ const FranchiseDashboard = () => {
     { title: 'Lead Count', count: dashboardCounts.leadsCount, route: '/leads/list' },
     { title: 'Deals Closed', count: dashboardCounts.soldCount, route: '' },
     { title: 'Site Visits', count: dashboardCounts.franchiseCount, route: '' },
-    { title: 'Team Leader', count: dashboardCounts.franchiseCount, route: '' },
+    { title: 'Team Leader', count: dashboardCounts.franchiseCount, route: '/teamleaderlist' },
     { title: 'Sales Executive', count: dashboardCounts.franchiseCount, route: '' },
   ];
 
@@ -52,7 +52,10 @@ const FranchiseDashboard = () => {
       <div className="page-content">
         <div className="container-fluid">
           <div className="card">
-            <div className='text-right p-4'>
+            <div className='text-right p-4 d-flex justify-content-between'>
+               <h4 className="PremiumAccount1 mb-0 pb-0 dt">
+                        {userData.city_office_name}
+                      </h4>
               <h4>
                 Manager Name
               </h4>
@@ -60,13 +63,7 @@ const FranchiseDashboard = () => {
             <div className="ad-v2-hom-info">
               <div className="ad-v2-hom-info-inn">
                 <ul className="Homesb1">
-                  <div className="profile-det-titls d-flex justify-content-between align-items-center">
-                    <div>
-                      <h2 className="PremiumAccount1 mb-0 pb-0 dt">
-                        {userData.city_office_name}
-                      </h2>
-                    </div>
-                  </div>
+               
 
                   <div className="row justify-content-center w-80 m-auto">
                     {dashboardItems.map((item, index) => (
