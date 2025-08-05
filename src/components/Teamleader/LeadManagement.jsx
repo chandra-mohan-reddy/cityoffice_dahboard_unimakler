@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { masterClient } from '../../utils/httpClient';
-import Loader from '../common/Loader';
 
 const LeadManagement = ({ data }) => {
 
@@ -26,10 +25,9 @@ const LeadManagement = ({ data }) => {
     setLoading(true)
 
     const user_data = {
-      id: data?.franchise_id,
-      user_type: 24
+      id: data?.id,
+      user_type: data?.role_id
     }
-
 
     try {
       let res = await masterClient.post(`/get-user-projects`, user_data)
@@ -45,7 +43,7 @@ const LeadManagement = ({ data }) => {
   }
 
   useEffect(() => {
-    if (data && Object.keys(data).length > 0 && data.franchise_id) {
+    if (data && Object.keys(data).length > 0 && data.id) {
       getAssignedProjects();
       getLeads(1, itemsPerPage, search)
     }
@@ -80,8 +78,8 @@ const LeadManagement = ({ data }) => {
       }
 
       let payload = {
-        "id": data?.franchise_id,
-        "user_type": 24,
+        "id": data?.id,
+        "user_type": data?.role_id,
         "page": page,
         "limit": limit,
         "search": searchFilters
@@ -199,10 +197,11 @@ const LeadManagement = ({ data }) => {
     return `${year}-${paddedMonth}`;
   }
 
+
   return (
     <div className="p-4">
       <div className="row justify-content-center">
-        <div className="col-md-12 mb-3">
+        <div className="col-md-12">
           <div className="card">
             <div className="card-header py-3">
               <h3 className="card-title">Leads Management</h3>
@@ -393,7 +392,7 @@ const LeadManagement = ({ data }) => {
                         </td>
                         <td>
                           <span class="text-dark">
-                            <Link to={`/franchise/${data?.franchise_id}/leads/${getYearMonthString(leadCount.month)}`}>{leadCount.count}</Link>
+                            <Link to={`/teamLeader/${data?.id}/leads/${getYearMonthString(leadCount.month)}`}>{leadCount.count}</Link>
                           </span>
                         </td>
                       </tr>

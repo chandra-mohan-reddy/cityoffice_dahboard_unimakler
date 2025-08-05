@@ -4,27 +4,25 @@ import { masterClient } from '../../utils/httpClient';
 import { useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import Dashboard from '../../components/SalesExecutive/Dashboard';
+import Projects from '../../components/SalesExecutive/Projects';
+import LeadTransfer from '../../components/SalesExecutive/LeadTransfer';
+import LeadManagement from '../../components/SalesExecutive/LeadManagement';
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import MonthlyLeads from '../../components/Teamleader/MonthlyLeads';
-import Dashboard from '../../components/Salesexecutive/Dashboard';
-import LeadManagement from '../../components/Salesexecutive/LeadManagement';
-import LeadTransfer from '../../components/Salesexecutive/LeadTransfer';
-import Projects from '../../components/Salesexecutive/Projects';
-// import Dashboard from '../../components/Teamleader/Projects';
 
-const SalesExecutivesdetails = () => {
+const SalesExecutivedetails = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
-  const [franchise, setFranchise] = useState({})
+  const [salesExecutive, setSalesExecutive] = useState({})
 
-  const getFranchiseDetails = async () => {
+  const getSalesExecutive = async () => {
     setLoading(true)
     try {
-      const response = await masterClient.get(`super-franchise/franchise/${id}`)
+      const response = await masterClient.get(`admin/sales-executive/${id}`)
       if (response?.data?.status) {
-        setFranchise(response?.data?.data)
+        setSalesExecutive(response?.data?.data)
       }
     } catch (error) {
       console.error(`Error fetching franchsies => ${error}`);
@@ -34,12 +32,11 @@ const SalesExecutivesdetails = () => {
   }
 
   useEffect(() => {
-    getFranchiseDetails();
+    getSalesExecutive();
   }, [id])
 
   return (
     <>
-      {/* {loading && <Loader />} */}
       <div className="main-content franchise_out">
         <div className="page-content">
           <div className="container-fluid">
@@ -48,11 +45,14 @@ const SalesExecutivesdetails = () => {
                 <div className="col-12">
                   <div className="page-title-box d-flex align-items-center justify-content-between">
                     <div className="page-title-right row w-100">
-                      <div className="col-md-6 text-left" >
-                        <h3 className='text-left'>Sales Executive: <b>MOHAN</b></h3>
+                      <div className="col-md-4 text-left" >
+                        <h3 className='text-left'>Sales Executive: <b>{salesExecutive?.full_name}</b></h3>
                       </div>
-                      <div className="col-md-6 text-right">
-                        <h3 className='text-right'>City Office : <b>HYDERABAD</b></h3>
+                      <div className="col-md-4 text-right">
+                        <h3 className='text-center'>Team Leader : <b>{salesExecutive?.tl_name}</b></h3>
+                      </div>
+                      <div className="col-md-4 text-right">
+                        <h3 className='text-right'>City Office : <b>{salesExecutive?.city_office_name}</b></h3>
                       </div>
                     </div>
                   </div>
@@ -68,16 +68,16 @@ const SalesExecutivesdetails = () => {
                 </TabList>
 
                 <TabPanel>
-                  <Dashboard/>
+                  <Dashboard data={salesExecutive} />
                 </TabPanel>
                 <TabPanel>
-                  <Projects/>
+                  <Projects data={salesExecutive} />
                 </TabPanel>
                 <TabPanel>
-                  <LeadTransfer />
+                  <LeadTransfer data={salesExecutive} />
                 </TabPanel>
                 <TabPanel>
-                  <LeadManagement />
+                  <LeadManagement data={salesExecutive} />
                 </TabPanel>
               </Tabs>
             </div>
@@ -88,4 +88,4 @@ const SalesExecutivesdetails = () => {
   );
 };
 
-export default SalesExecutivesdetails;
+export default SalesExecutivedetails;

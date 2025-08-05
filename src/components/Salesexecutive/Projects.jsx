@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { masterClient } from '../../utils/httpClient';
 import Loader from '../common/Loader';
+
 const Projects = ({ data }) => {
 
   const [loading, setLoading] = useState(false);
@@ -10,8 +11,8 @@ const Projects = ({ data }) => {
     setLoading(true)
 
     const user_data = {
-      id: data?.franchise_id,
-      user_type: 24
+      id: data?.id,
+      user_type: data?.role_id
     }
 
     try {
@@ -28,7 +29,7 @@ const Projects = ({ data }) => {
   }
 
   useEffect(() => {
-    if (data && Object.keys(data).length > 0 && data.franchise_id) {
+    if (data && Object.keys(data).length > 0 && data.id) {
       getAssignedProjects();
     }
   }, [data])
@@ -47,9 +48,10 @@ const Projects = ({ data }) => {
     }
   };
 
-  if (loading) return <Loader />
+
   return (
     <>
+      {loading && <Loader />}
       <div className="p-4">
         <div className="row justify-content-center">
           <div className="col-md-12">

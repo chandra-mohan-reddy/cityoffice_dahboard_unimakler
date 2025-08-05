@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Route } from 'react-router-dom';
 import { masterClient } from '../../utils/httpClient';
 import Loader from '../common/Loader';
 const Dashboard = ({ data }) => {
@@ -13,16 +13,17 @@ const Dashboard = ({ data }) => {
     salesExecutiveCount: 0
   });
 
+
   const getDashboardCounts = async () => {
-    if (!data?.franchise_id) {
-      console.log('No franchise_id available yet');
+    if (!data?.id) {
+      console.log('No id available yet');
       return;
     }
     setLoader(true);
     try {
       const res = await masterClient.post('/dashboard', {
-        id: data?.franchise_id,
-        user_type: 24
+        id: data?.id,
+        user_type: data?.role_id
       });
       if (res?.data?.status) {
         setDashboardCounts(res.data.data);
@@ -35,17 +36,21 @@ const Dashboard = ({ data }) => {
   };
 
   useEffect(() => {
-    if (data && Object.keys(data).length > 0 && data.franchise_id) {
+    if (data && Object.keys(data).length > 0 && data.id) {
       getDashboardCounts();
     }
   }, [data]);
 
   const dashboardItems = [
     { title: 'Assigned Projects', count: dashboardCounts.projectsCount, route: '/projects' },
-    { title: 'Deals Closed', count: dashboardCounts.franchiseCount, route: '' },
+    { title: 'Deals Closed', count: dashboardCounts.soldCount, route: '' },
     { title: 'Lead List', count: dashboardCounts.leadsCount, route: '/leads/list' },
-    { title: 'Sale Executives', count: dashboardCounts.soldCount, route: '/saleexecutiveslist' },
-
+    {
+      title: 'Sale Executives',
+      count: dashboardCounts.salesExecutiveCount, route: '/executive'
+    },
+    // { title: 'FRANCHISEE', count: dashboardCounts.franchiseCount, route: '' },
+    // { title: 'Site Visits', count: dashboardCounts.franchiseCount, route: '' }
   ];
 
   if (loader) return <Loader />;
@@ -53,20 +58,18 @@ const Dashboard = ({ data }) => {
   return (
     <div className='p-4'>
       <h4 className="PremiumAccount1 mb-3 pb-0 dt text-right">
-        {data?.franchise_name}
+        {data?.city_ofice_name}
       </h4>
 
       <div className="ad-v2-hom-info">
         <div className="ad-v2-hom-info-inn mt-0">
           <ul className="p-0">
-       
-
             <div className="row justify-content-center w-80 m-auto">
               {dashboardItems.map((item, index) => (
                 <div key={index} className={`col-md-6 ${item.className || ''}`}>
-                  <div className="ad-hom-box ad-hom-box-1 mb-3">
+                  <div className="ad-hom-box ad-hom-box-1">
                     <div className="ad-hom-view-com">
-                      <Link to={item.route}>
+                      <Link to={`${item.route}`}>
                         <p>{item.title}</p>
                         <h3>{item.count}</h3>
                       </Link>

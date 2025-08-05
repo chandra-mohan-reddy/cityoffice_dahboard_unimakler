@@ -4,26 +4,25 @@ import { masterClient } from '../../utils/httpClient';
 import { useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import Dashboard from '../../components/Teamleader/Dashboard';
+import Projects from '../../components/Teamleader/Projects';
+import LeadTransfer from '../../components/Teamleader/LeadTransfer';
+import LeadManagement from '../../components/Teamleader/LeadManagement';
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import Dashboard from '../../components/Teamleader/Dashboard';
-import Projects from '../../components/Teamleader/Projects';
-import LeadManagement from '../../components/Teamleader/LeadManagement';
-import LeadTransfer from '../../components/Teamleader/LeadTransfer';
-// import Dashboard from '../../components/Teamleader/Projects';
 
 const TeamLeaderdetails = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
-  const [franchise, setFranchise] = useState({})
+  const [teamLeader, setTeamLeader] = useState({});
 
-  const getFranchiseDetails = async () => {
+  const getTeamLeaderDetails = async () => {
     setLoading(true)
     try {
-      const response = await masterClient.get(`super-franchise/franchise/${id}`)
+      const response = await masterClient.get(`/city-office/team-leaders/${id}`)
       if (response?.data?.status) {
-        setFranchise(response?.data?.data)
+        setTeamLeader(response?.data?.data)
       }
     } catch (error) {
       console.error(`Error fetching franchsies => ${error}`);
@@ -33,7 +32,7 @@ const TeamLeaderdetails = () => {
   }
 
   useEffect(() => {
-    getFranchiseDetails();
+    getTeamLeaderDetails();
   }, [id])
 
   return (
@@ -48,10 +47,10 @@ const TeamLeaderdetails = () => {
                   <div className="page-title-box d-flex align-items-center justify-content-between">
                     <div className="page-title-right row w-100">
                       <div className="col-md-6 text-left" >
-                        <h3 className='text-left'>Team Leader: <b>MOHAN</b></h3>
+                        <h3 className='text-left'>Team Leader: <b>{teamLeader?.full_name}</b></h3>
                       </div>
                       <div className="col-md-6 text-right">
-                        <h3 className='text-right'>City Office : <b>HYDERABAD</b></h3>
+                        <h3 className='text-right'>City Office : <b>{teamLeader?.city_office_name}</b></h3>
                       </div>
                     </div>
                   </div>
@@ -67,16 +66,16 @@ const TeamLeaderdetails = () => {
                 </TabList>
 
                 <TabPanel>
-                  <Dashboard/>
+                  <Dashboard data={teamLeader} />
                 </TabPanel>
                 <TabPanel>
-                  <Projects/>
+                  <Projects data={teamLeader} />
                 </TabPanel>
                 <TabPanel>
-                  <LeadTransfer />
+                  <LeadTransfer data={teamLeader} />
                 </TabPanel>
                 <TabPanel>
-                  <LeadManagement />
+                  <LeadManagement data={teamLeader} />
                 </TabPanel>
               </Tabs>
             </div>

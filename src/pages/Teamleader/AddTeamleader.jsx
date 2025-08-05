@@ -10,6 +10,7 @@ import { masterClient, authClient } from '../../utils/httpClient';
 import { toastError, toastSuccess } from '../../utils/toast';
 import { IoCloseSharp } from "react-icons/io5";
 import DateModal from '../../components/reusable/DateModal';
+import { Link } from 'react-router-dom';
 
 function AddTeamleader() {
   const userData = useSelector((state) => state.user.userData);
@@ -508,6 +509,7 @@ function AddTeamleader() {
                                 <th>Name</th>
                                 <th>Phone</th>
                                 <th>Date of birth</th>
+                                <th>Details</th>
                                 <th>Action</th>
                               </tr>
                             </thead>
@@ -520,6 +522,7 @@ function AddTeamleader() {
                                     </td>
                                     <td>{ele.primary_mobile}</td>
                                     <td>{ele.date_of_birth}</td>
+                                    <td><Link to={`/team-leader/${ele.id}`}>View</Link></td>
                                     <td>
                                       <button
                                         onClick={() => handleShow(ele.id, 1)}

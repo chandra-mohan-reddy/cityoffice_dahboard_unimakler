@@ -22,7 +22,7 @@ const LazyLoad = () => {
   const AddGenaralmanager = lazy(() => import(`../pages/SaleExecutive/AddGenaralmanager`));
 
   const AddTeamleader = lazy(() => import(`../pages/Teamleader/AddTeamleader.jsx`));
-  
+
   const AddChannelPartner = lazy(() => import(`../pages/ChannelPartner/AddChannelPartner`));
 
 
@@ -46,12 +46,13 @@ const LazyLoad = () => {
   const DeletedLeads = lazy(() => import(`../pages/LeadManagement/DeletedLeads`));
   const FranInternalTransfer = lazy(() => import(`../pages/FranchiseleadTransfer/FranInternalTransfer`));
   const FranExternalTransfer = lazy(() => import(`../pages/FranchiseleadTransfer/FranExternalTransfer`));
-  
+
   const TeamLeaderList = lazy(() => import(`../pages/TeamleadLead/TeamLeaderList`));
   const TeamLeaderdetails = lazy(() => import(`../pages/TeamleadLead/TeamLeaderdetails`));
   const SalesExecutiveslist = lazy(() => import(`../pages/SalesExecutives/SalesExecutiveslist`));
   const SalesExecutivesdetails = lazy(() => import(`../pages/SalesExecutives/SalesExecutivesdetails`));
-  
+  const SalesLeadMonthlyLeads = lazy(() => import('../pages/SaleExecutive/MonthlyLeads'))
+
 
   // sub-pages
 
@@ -91,7 +92,7 @@ const LazyLoad = () => {
         <Route path="/franchise/list" element={<AssociateLists />} />
         {/* <Route path="/franchise/details/:id" element={<FranchiseDetails />} /> */}
         <Route path="/franchise/details" element={<FranchiseDetails />} />
-        
+
         <Route path="/franchise/allfranchises" element={<AllFranchises />} />
         <Route path="/franchise/:id/leads/:month" element={<AllFranchisesmonthList />} />
 
@@ -106,11 +107,11 @@ const LazyLoad = () => {
         <Route path="/salesexecutivelist" element={<SalesExecutivelist />} />
         <Route path="/salesexecutivedetails" element={<SalesExecutivedetails />} /> */}
         <Route path="/teamleaderlist" element={<TeamLeaderList />} />
-        <Route path="/teamleaderdetails" element={<TeamLeaderdetails />} />
-      
+        <Route path="/team-leader/:id" element={<TeamLeaderdetails />} />
         <Route path="/saleexecutiveslist" element={<SalesExecutiveslist />} />
-        <Route path="/saleexecutivesdetails" element={<SalesExecutivesdetails />} />
-        {/* <Route path="/teamleaderdetails" element={<TeamLeaderList />} />
+        <Route path="/sales-executive/details/:id" element={<SalesExecutivesdetails />} />
+        <Route path='/salesexecutive/:id/leads/:month' element={<SalesLeadMonthlyLeads />} /> 
+          {/* <Route path="/teamleaderdetails" element={<TeamLeaderList />} />
         <Route path="/teamleaderdetails" element={<TeamLeaderList />} />
         <Route path="/teamleaderdetails" element={<TeamLeaderList />} /> */}
       </Routes>
