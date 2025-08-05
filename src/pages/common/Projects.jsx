@@ -18,7 +18,7 @@ const Projects = () => {
   const getAssignedProjects = async () => {
     setLoading(true)
     try {
-      let res = await masterClient.get(`/users-projects-mapping/${userData.id}`)
+      let res = await masterClient.post(`/user-projects`)
       if (res?.data?.status && res?.data?.data.length > 0) {
         setAssignedProjects(res?.data?.data);
       }

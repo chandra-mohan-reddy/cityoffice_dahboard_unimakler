@@ -1,7 +1,8 @@
 import React from 'react'
+import { useSelector } from 'react-redux';
 import CityOfficeDashboard from '../../components/dashboards/CityOfficeDashboard';
 import TeamLeaderDashboard from '../../components/dashboards/TeamLeaderDashboard';
-import { useSelector } from 'react-redux';
+import SalesExecutiveDashboard from '../../components/dashboards/SalesExecutiveDashboard';
 
 const Dashboard = () => {
     const userData = useSelector((state) => state.user.userData);
@@ -13,7 +14,10 @@ const Dashboard = () => {
             dashboard = <CityOfficeDashboard user={userData} />
             break;
         case 'Team Leader':
-            dashboard = <TeamLeaderDashboard />
+            dashboard = <TeamLeaderDashboard user={userData} />
+            break;
+        case 'Sales Executive':
+            dashboard = <SalesExecutiveDashboard userData={userData} />
             break;
         default:
             dashboard = null;

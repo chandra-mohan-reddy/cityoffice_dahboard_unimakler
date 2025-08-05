@@ -20,7 +20,7 @@ const TeamLeaderDashboard = () => {
     try {
       const res = await masterClient.post('/dashboard', {
         id: userData?.id,
-        user_type: 19
+        user_type: userData?.role_id
       });
       if (res?.data?.status) {
         setDashboardCounts(res.data.data);
@@ -44,7 +44,7 @@ const TeamLeaderDashboard = () => {
     { title: 'Site Visits', count: dashboardCounts.franchiseCount, route: '' },
     // { title: 'General Manager', count: dashboardCounts.franchiseCount,  route: '' },
     // { title: 'Team Leader', count: dashboardCounts.franchiseCount, route: '' },
-    { title: 'Sales Executive', count: dashboardCounts.franchiseCount, route: '/franchise/allfranchises' },
+    { title: 'Sales Executive', count: dashboardCounts.salesExecutiveCount, route: '/executive' },
   ];
 
   if (loader) return <Loader />;

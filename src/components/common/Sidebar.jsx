@@ -1,7 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import CityAdminSidebar from '../sidebars/CityAdminSidebar';
-import TeamLederSidebar from '../sidebars/TeamLeaderSidebar'
+import TeamLederSidebar from '../sidebars/TeamLeaderSidebar';
+import SalesExecutiveSidebar from '../sidebars/SalesExecutiveSidebar';
 const Sidebars = () => {
 
   const userData = useSelector((state) => state.user.userData)
@@ -14,6 +15,9 @@ const Sidebars = () => {
       break;
     case 'Team Leader':
       SideBar = <TeamLederSidebar user={userData} role={role} />
+      break;
+    case 'Sales Executive':
+      SideBar = <SalesExecutiveSidebar user={userData} role={role} />
       break;
     default:
       SideBar = null;

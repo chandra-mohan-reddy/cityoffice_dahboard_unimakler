@@ -66,7 +66,7 @@ const MonthLeads = ({ data, id, month }) => {
 
             let payload = {
                 "user_id": id,
-                "user_type": data?.role_id,
+                "user_type": 34,
                 "month": month,
                 "search": searchFilters
             };
