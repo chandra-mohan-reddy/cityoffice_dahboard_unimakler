@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { masterClient } from '../../utils/httpClient';
 import Loader from '../../components/common/Loader';
 import { useSelector } from 'react-redux';
@@ -7,47 +7,19 @@ const AddLead = () => {
 
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({})
-  const [sourseTypes, setSourceTypes] = useState([]);
-  const [sources, setSources] = useState([]);
   const [assignedProjects, setAssignedProjects] = useState([]);
   const [formErr, setFormErr] = useState({})
 
   const userData = useSelector((state) => state.user.userData);
   const role = useSelector((state) => state.user.role);
 
-  const getSourceTypes = async () => {
-    setLoading(true)
-    try {
-      let res = await masterClient.get('sourceType')
-      if (res?.data?.status && res?.data?.data.length > 0) {
-        setSourceTypes(res?.data?.data)
-      }
-    } catch (err) {
-      console.error('error getting source types =>', err);
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const getSourcesByType = async (id) => {
-    try {
-      let res = await masterClient.get(`sources/by-type/${id}`)
-      if (res?.data?.status && res?.data?.data.length > 0) {
-        setSources(res?.data?.data)
-      }
-    } catch (err) {
-      console.error('error getting source types =>', err);
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleForm = async (e) => {
     const { name, value } = e.target
 
-    if (name === 'sourceType') {
-      getSourcesByType(value)
-    }
+    setFormErr((prev) => ({
+      ...prev,
+      [name]: ""
+    }))
 
     setForm((prev) => ({
       ...prev,
@@ -58,13 +30,7 @@ const AddLead = () => {
   const getAssignedProjects = async () => {
     setLoading(true)
     try {
-      let res;
-      if (role === "franchise" || role === "Super Franchise") {
-        res = await masterClient.get(`/users-projects-mapping/${userData.franchise_id}`)
-      } else {
-        res = await masterClient.get(`/users-projects-mapping/${userData.id}`)
-      }
-
+      let res = await masterClient.post(`/user-projects`)
       if (res?.data?.status && res?.data?.data.length > 0) {
         setAssignedProjects(res?.data?.data);
       }
@@ -77,13 +43,11 @@ const AddLead = () => {
 
   useEffect(() => {
     if (userData) getAssignedProjects();
-    getSourceTypes();
   }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (validate()) {
-
       try {
         let res = await masterClient.post('addLead', form);
         if (res?.data?.status) {
@@ -121,14 +85,6 @@ const AddLead = () => {
     let errors = {};
     let isValid = true;
 
-    if (!form.sourceType) {
-      errors.sourceType = 'Source Type is required';
-      isValid = false;
-    }
-    if (!form.source_id) {
-      errors.source_id = 'Source is required';
-      isValid = false;
-    }
     if (!form.customerName) {
       errors.customerName = 'Customer name is required';
       isValid = false;
@@ -179,45 +135,6 @@ const AddLead = () => {
                   <div className="card-body">
                     <form className="custom-validation" onSubmit={handleSubmit}>
                       <div className="form-floating mb-3">
-                        <select
-                          className="form-select"
-                          id='sourceType'
-                          name="sourceType"
-                          value={form.sourceType || ''}
-                          onChange={handleForm}
-                        >
-                          <option>Select</option>
-                          {sourseTypes.length > 0 &&
-                            sourseTypes.map((ele, index) => (
-                              <option key={index} value={ele.id}>{ele.source_type}</option>
-                            ))
-                          }
-                        </select>
-                        <label htmlFor="sourceType" className="fw-normal">
-                          Source Type <span className='req'>*</span>
-                        </label>
-                      </div>
-
-                      <div className="form-floating mb-3">
-                        <select
-                          className="form-select"
-                          name="source_id"
-                          value={form?.source_id || ''}
-                          onChange={handleForm}
-                        >
-                          <option>Select Source</option>
-                          {sources.length > 0 &&
-                            sources.map((ele, index) => (
-                              <option key={index} value={ele.id}>{ele.source_name}</option>
-                            ))
-                          }
-                        </select>
-                        <label htmlFor="customerName" className="fw-normal">
-                          Sources <span className='req'>*</span>
-                        </label>
-                      </div>
-
-                      <div className="form-floating mb-3">
                         <input
                           type='text'
                           className="form-control"
@@ -230,6 +147,8 @@ const AddLead = () => {
                         <label htmlFor="customerName" className="fw-normal">
                           Customer Name <span className='req'>*</span>
                         </label>
+                        {formErr.customerName &&
+                          <span className='text-danger'>{formErr.customerName}</span>}
                       </div>
 
                       <div className="form-floating mb-3">
@@ -242,9 +161,11 @@ const AddLead = () => {
                           value={form?.mobileNumber || ''}
                           onChange={handleForm}
                         />
-                        <label htmlFor="customerName" className="fw-normal">
+                        <label htmlFor="mobile" className="fw-normal">
                           Mobile No <span className='req'>*</span>
                         </label>
+                        {formErr.mobileNumber &&
+                          <span className='text-danger'>{formErr.mobileNumber}</span>}
                       </div>
 
                       <div className="form-floating mb-3">
@@ -260,6 +181,8 @@ const AddLead = () => {
                         <label htmlFor='email' className='fw-normal'>
                           Email <span className='req'>*</span>
                         </label>
+                        {formErr.email &&
+                          <span className='text-danger'>{formErr.email}</span>}
                       </div>
 
                       <div className="form-floating mb-3">
@@ -282,6 +205,8 @@ const AddLead = () => {
                         <label htmlFor="project" className="fw-normal">
                           Project <span className='req'>*</span>
                         </label>
+                        {formErr.project &&
+                          <span className='text-danger'>{formErr.project}</span>}
                       </div>
 
                       <div className="form-floating mb-3">
@@ -296,6 +221,7 @@ const AddLead = () => {
                         <label htmlFor="customerName" className="fw-normal">
                           Comment <span className='req'>*</span>
                         </label>
+                        {formErr.comments && <span className='text-danger'>{formErr.comments}</span>}
                       </div>
 
                       <div className="col-12">
