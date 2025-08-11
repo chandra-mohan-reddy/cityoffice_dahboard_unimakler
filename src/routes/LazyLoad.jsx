@@ -89,7 +89,7 @@ const LazyLoad = () => {
         <Route path="/citymanager" element={<AddCitymanager />} />
         <Route path="/teamleader" element={<AddTeamleader />} />
         <Route path="/generalmanager" element={<AddGenaralmanager />} />
-        <Route path="/addchannelpartner" element={<AddChannelPartner />} />
+        <Route path="/channel-partner" element={<AddChannelPartner />} />
 
         <Route path="/franchise/create" element={<CreateFranchise />} />
         <Route path="/franchise/list" element={<AssociateLists />} />

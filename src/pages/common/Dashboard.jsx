@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import CityOfficeDashboard from '../../components/dashboards/CityOfficeDashboard';
 import TeamLeaderDashboard from '../../components/dashboards/TeamLeaderDashboard';
 import SalesExecutiveDashboard from '../../components/dashboards/SalesExecutiveDashboard';
+import ChannelPartnerDashboard from '../../components/dashboards/ChannelPartnerDashboard';
 
 const Dashboard = () => {
     const userData = useSelector((state) => state.user.userData);
@@ -18,6 +19,9 @@ const Dashboard = () => {
             break;
         case 'Sales Executive':
             dashboard = <SalesExecutiveDashboard userData={userData} />
+            break;
+        case 'Channel Partner':
+            dashboard = <ChannelPartnerDashboard userData={userData} />
             break;
         default:
             dashboard = null;

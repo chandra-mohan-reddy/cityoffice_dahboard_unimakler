@@ -13,22 +13,21 @@ const ChannelpartnerSidebar = ({ user }) => {
                 </Link>
             </div>
             <Menu>
-              <MenuItem component={<Link to="/dashboard" />} className={isActive('/dashboard') ? 'active' : ''}>
-                                  Dashboard
-                              </MenuItem>
-                              <MenuItem component={<Link to="/projects" />} className={isActive('/projects') ? 'active' : ''}>
-                                  ASSIGNED PROJECTS
-                              </MenuItem>
-                              <MenuItem component={<Link to="/lead-registration" />} className={isActive('/lead-registration') ? 'active' : ''}>
-                                  Lead Registration
-                              </MenuItem>
-                                <MenuItem component={<Link to="/deal-closed" />} className={isActive('/') ? 'active' : ''}>
-                                                  Site Visits 
-                                              </MenuItem>
-                                              <MenuItem component={<Link to="/deal-closed" />} className={isActive('/deal-closed') ? 'active' : ''}>
-                                                  Deal Closed
-                                              </MenuItem>
-                
+                <MenuItem component={<Link to="/dashboard" />} className={isActive('/dashboard') ? 'active' : ''}>
+                    Dashboard
+                </MenuItem>
+                <MenuItem component={<Link to="/projects" />} className={isActive('/projects') ? 'active' : ''}>
+                    ASSIGNED PROJECTS
+                </MenuItem>
+                <MenuItem component={<Link to="/lead-registration" />} className={isActive('/lead-registration') ? 'active' : ''}>
+                    Lead Registration
+                </MenuItem>
+                <MenuItem component={<Link to="/deal-closed" />} className={isActive('/') ? 'active' : ''}>
+                    Site Visits
+                </MenuItem>
+                <MenuItem component={<Link to="/deal-closed" />} className={isActive('/deal-closed') ? 'active' : ''}>
+                    Deal Closed
+                </MenuItem>
             </Menu>
         </Sidebar >
     )

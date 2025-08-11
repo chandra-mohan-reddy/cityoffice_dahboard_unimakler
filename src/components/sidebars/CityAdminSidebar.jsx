@@ -36,7 +36,7 @@ const CityAdminSidebar = ({ user }) => {
                     <MenuItem component={<Link to="/executive" />} className={isActive('/executive') ? 'active' : ''}>Sale Executive</MenuItem>
                 </SubMenu>
                 <SubMenu label="Bussiness Associate">
-                    <MenuItem component={<Link to="/addchannelpartner" />} className={isActive('/addchannelpartner') ? 'active' : ''}>
+                    <MenuItem component={<Link to="/channel-partner" />} className={isActive('/channel-partner') ? 'active' : ''}>
                         Add Bussiness Associate
                     </MenuItem>
                 </SubMenu>

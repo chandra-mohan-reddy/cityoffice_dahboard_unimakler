@@ -50,9 +50,9 @@ const ChannelPartnerDashboard = () => {
         <div className="container-fluid">
           <div className="card">
             <div className='text-right p-4 d-flex justify-content-between'>
-               <h4 className="PremiumAccount1 mb-0 pb-0 dt">
-                        {userData.city_office_name}
-                      </h4>
+              <h4 className="PremiumAccount1 mb-0 pb-0 dt">
+                {userData.city_office_name}
+              </h4>
               <h4>
                 Manager Name
               </h4>
@@ -60,7 +60,7 @@ const ChannelPartnerDashboard = () => {
             <div className="ad-v2-hom-info">
               <div className="ad-v2-hom-info-inn">
                 <ul className="Homesb1">
-               
+
 
                   <div className="row justify-content-center w-80 m-auto">
                     {dashboardItems.map((item, index) => (

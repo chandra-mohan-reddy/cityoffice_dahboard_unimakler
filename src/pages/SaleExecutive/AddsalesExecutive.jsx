@@ -98,7 +98,6 @@ function AddsalesExecutive({ ...props }) {
 
 
     setForm((prev) => {
-      // Temporarily store the updated field
       const updatedForm = { ...prev, [name]: value };
       return updatedForm;
     });

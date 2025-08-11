@@ -1,45 +1,74 @@
-import { useState, useEffect } from 'react';
-import Button from 'react-bootstrap/Button';
-import Offcanvas from 'react-bootstrap/Offcanvas';
-import { FaEdit } from 'react-icons/fa';
-import { MdDelete } from 'react-icons/md';
-import { handleImages3 } from '../../utils/S3Handler';
-import { useSelector } from 'react-redux';
-import Loader from '../../components/common/Loader';
-import { masterClient, authClient } from '../../utils/httpClient';
-import { toastError, toastSuccess } from '../../utils/toast';
+import { useState, useEffect } from "react";
+import Button from "react-bootstrap/Button";
+import Offcanvas from "react-bootstrap/Offcanvas";
+import { FaEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import { handleImages3 } from "../../utils/S3Handler";
+import { useSelector } from "react-redux";
+import Loader from "../../components/common/Loader";
+import { masterClient } from "../../utils/httpClient";
+import { toastError, toastSuccess } from "../../utils/toast";
 import { IoCloseSharp } from "react-icons/io5";
-
 function AddChannelPartner({ ...props }) {
   const userData = useSelector((state) => state.user.userData);
+  const USER_TYPE = 25;
+  const ENTITY_TYPE = 'channel_partner';
 
   const [formState, setFormState] = useState(0);
   const [show, setShow] = useState(false);
-  const [form, setForm] = useState({
-    projects: []
-  });
+  const [form, setForm] = useState(initialFormState());
   const [formErrors, setFormErrors] = useState({});
   // ? projects Variables 
   const [assignedProjects, setAssignedProjects] = useState([]);
   const [unAssignedProjects, setUnAssignedProjects] = useState([]);
-  // ? sales executive variables
-  const [salesExecutives, setSalesExecutives] = useState([]);
+  // ? channel partner variables
+  const [channelPartners, setChannelPartners] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const handleClose = () => setShow(false);
+  function initialFormState() {
+    return {
+      full_name: "",
+      date_of_birth: "",
+      date_of_joining: "",
+      username: "",
+      password: "",
+      re_type_password: "",
+      primary_email: "",
+      secondary_email: "",
+      primary_mobile: "",
+      secondary_mobile: "",
+      projects: [],
+      profile: null,
+      bank_details: null,
+      resume: null,
+      aadhar_card: null,
+      pan_card: null
+    };
+  }
+
+  const handleClose = () => {
+    setShow(false);
+    setForm(initialFormState());
+    setFormErrors({});
+  };
 
   const handleShow = (id = null, state) => {
     setShow(true);
     setFormState(state);
     if (state === 1) {
-      getSalesExecutiveById(id);
+      getChannelPartnersById(id);
     } else {
-      setForm({ projects: [] });
+      setForm(initialFormState());
     }
   };
 
-  const hanldeForm = (e) => {
+  const handleForm = (e) => {
     const { name, value } = e.target;
+
+    setFormErrors((prev) => ({
+      ...prev,
+      [name]: ''
+    }))
 
     setForm((prev) => {
       // Temporarily store the updated field
@@ -60,7 +89,6 @@ function AddChannelPartner({ ...props }) {
               projectName: selectedProject.projectName
             };
 
-            console.log(newProject);
             setUnAssignedProjects((prev) =>
               prev.filter((project) => project.project_id !== selectedProject.project_id)
             );
@@ -80,44 +108,23 @@ function AddChannelPartner({ ...props }) {
 
   const handleImage = async (e) => {
     setLoading(true);
-    let resFromMiddleware = await handleImages3(e);
-    setLoading(false);
-    if (resFromMiddleware.clientStatus) {
-      if (
-        e.target.name === 'pan_card' ||
-        e.target.name === 'aadhar_card' ||
-        e.target.name === 'resume' ||
-        e.target.name === 'bank_details'
-      ) {
-        setForm((prevState) => ({
-          ...prevState,
-          [e.target.name]: resFromMiddleware.data.original_file_url
-        }));
-      } else {
-        setForm((prevState) => ({
-          ...prevState,
-          [e.target.name]: resFromMiddleware.data.original_image_url
-        }));
-      }
-    }
-  };
-
-  const getSalesExecutives = async () => {
-    setLoading(true);
+    const { name } = e.target;
     try {
-      let res = await masterClient.get(`/city-office/${userData?.id}/executives`);
-      if (res?.data?.status && res?.data?.data.length > 0) {
-        setSalesExecutives(res?.data?.data);
-      } else {
-        setSalesExecutives([]);
+      let res = await handleImages3(e);
+      if (res.clientStatus) {
+        const fileUrl =
+          ["pan_card", "aadhar_card", "resume", "bank_details"].includes(name)
+            ? res.data.original_file_url
+            : res.data.original_image_url;
+        setForm((prev) => ({ ...prev, [name]: fileUrl }));
       }
-    } catch (err) {
-      console.error('Error getting Sales Executives', err);
-      toastError('No Sales Executives Found');
+    } catch (error) {
+      console.log(`Error uploading image ${error}`)
     } finally {
       setLoading(false);
     }
   };
+
 
   const getAssignedProjects = async () => {
     setLoading(true);
@@ -125,8 +132,7 @@ function AddChannelPartner({ ...props }) {
       let res = await masterClient.get(`/users-projects-mapping/${userData.id}`);
       if (res?.data?.status && res?.data?.data.length > 0) {
         setAssignedProjects(res?.data?.data);
-        const projects = res?.data?.data.filter((project) => project.executive === null);
-        setUnAssignedProjects(projects);
+        setUnAssignedProjects(res?.data?.data);
       }
     } catch (err) {
       console.error(`Error getting Projects ${err}`);
@@ -135,260 +141,199 @@ function AddChannelPartner({ ...props }) {
     }
   };
 
-
-
-  useEffect(() => {
-    if (userData) getAssignedProjects();
-    getSalesExecutives();
-  }, []);
-
   const validateForm = () => {
-    const errors = [];
+    const errors = {};
     let isValid = true;
-    if (!form.full_name) {
-      errors.full_name = 'Full Name is required';
-      isValid = false;
-    }
-    if (!form.date_of_birth) {
-      errors.date_of_birth = 'Date of Birth is required';
-      isValid = false;
-    }
-    if (!form.date_of_joining) {
-      errors.date_of_joining = 'Date of Joining is required';
-      isValid = false;
-    }
-    if (!form.username) {
-      errors.username = 'Username is required';
-      isValid = false;
-    }
-    if (!form.password) {
-      errors.password = 'Password is required';
-      isValid = false;
-    }
-    if (!form.re_type_password) {
-      errors.re_type_password = 'Re-Type Password is required';
-      isValid = false;
-    }
+
+    const requiredFields = [
+      "full_name",
+      "date_of_birth",
+      "date_of_joining",
+      "username",
+      "password",
+      "re_type_password",
+      "primary_email",
+      "secondary_email",
+      "primary_mobile",
+      "secondary_mobile",
+      "profile",
+      "bank_details",
+      "resume",
+      "aadhar_card",
+      "pan_card"
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!form[field]) {
+        errors[field] = `${field.replace(/_/g, " ")} is required`;
+        isValid = false;
+      }
+    });
+
     if (form.password !== form.re_type_password) {
-      errors.password = 'Passwords do not match';
-      isValid = false;
-    }
-    if (!form.primary_email) {
-      errors.primary_email = 'Primary Email is required';
-      isValid = false;
-    }
-    if (!form.secondary_email) {
-      errors.secondary_email = 'Secondary Email is required';
-      isValid = false;
-    }
-    if (!form.primary_mobile) {
-      errors.primary_mobile = 'Primary Mobile is required';
-      isValid = false;
-    }
-    if (!form.secondary_mobile) {
-      errors.secondary_mobile = 'Secondary Mobile is required';
-      isValid = false;
-    }
-    if (form.projects.length === 0) {
-      errors.project = 'At least one project must be assigned';
-      isValid = false;
-    }
-    if (!form.profile) {
-      errors.profile = 'Profile is required';
-      isValid = false;
-    }
-    if (!form.bank_details) {
-      errors.bank_details = 'Bank Details are required';
-      isValid = false;
-    }
-    if (!form.resume) {
-      errors.resume = 'Resume is required';
-      isValid = false;
-    }
-    if (!form.aadhar_card) {
-      errors.aadhar_card = 'Aadhar Card is required';
-      isValid = false;
-    }
-    if (!form.pan_card) {
-      errors.pan_card = 'Pan Card is required';
+      errors.password = "Passwords do not match";
       isValid = false;
     }
 
+    if (form.projects.length === 0) {
+      errors.project = "At least one project must be assigned";
+      isValid = false;
+    }
 
     setFormErrors(errors);
     return isValid;
-  }
-
-  //? password helper funtions
-
-  const isPasswordValid = (pass) => {
-    const errors = [];
-
-    if (pass.length < 8) errors.push("Minimum 8 characters required.");
-    if (!/[a-z]/.test(pass)) errors.push("At least one lowercase letter required.");
-    if (!/[A-Z]/.test(pass)) errors.push("At least one uppercase letter required.");
-    if (!/[0-9]/.test(pass)) errors.push("At least one digit required.");
-    if (!/[@$!%*#?&]/.test(pass)) errors.push("At least one special character required.");
-
-    return {
-      status: errors.length === 0,
-      errors
-    };
   };
-
-  const doPasswordsMatch = (password, confirmPassword) => {
-    if (password === confirmPassword) {
-      return {
-        status: true,
-        message: "Passwords match."
-      };
-    } else {
-      return {
-        status: false,
-        message: "Passwords do not match."
-      };
-    }
-  };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formState === 0) {
-      if (!validateForm()) {
-        toastError('Please fill all required fields');
-        return;
-      }
-
-      const passwordValidation = isPasswordValid(form.password);
-      if (!passwordValidation.status) {
-        for (let i = 0; i < passwordValidation.errors.length; i++) {
-          toastError(passwordValidation.errors[i]);
-        }
-        return;
-      }
-
-      const passwordMatch = doPasswordsMatch(form?.login_password, form?.login_re_entered_password);
-
-      if (!passwordMatch.status) {
-        toastError(passwordMatch.message);
-        return;
-      }
+    if (!validateForm()) {
+      toastError("Please fill all required fields");
+      return;
     }
 
-
+    const passwordError = passwordRules(form.password);
+    if (passwordError) {
+      toastError(passwordError);
+      return;
+    }
 
     setLoading(true);
-    let payload = {
-      ...form,
-      role_id: 34,
-      city_office_id: userData?.id
-    };
     try {
+      const payload = {
+        ...form,
+        role_id: USER_TYPE,
+        city_office_id: userData?.id,
+
+        user: {
+          role_id: USER_TYPE,
+          entity_type: ENTITY_TYPE,
+          firstname: form.full_name,
+          company_name: userData?.city_office_name,
+          username: form.username,
+          password: form.password,
+          email: form.primary_email,
+          mobile: form.primary_mobile,
+          created_by: userData?.id
+        },
+
+        // Projects Mapping
+        projects: form.projects.map((each) => ({
+          project_id: each.project_id,
+        })),
+      };
+
+      console.log('payload =====>', payload);
+      return
+
       let res;
       if (formState === 0) {
-        res = await masterClient.post('/city-office/sales-executive', payload);
+        res = await masterClient.post("/city-office/sales-executive", payload);
       } else {
         res = await masterClient.put(`/city-office/sales-executive/${form.id}`, payload);
       }
 
       if (res?.data?.status) {
-        if (formState === 0) {
-          createLogin(res?.data?.data?.id);
+        const cpId = res.data.data.id;
+        if (formState !== 0 && form.projects && form.projects.length > 0) {
+          await saveProjectsForChannelPartner(cpId);
         }
-        getSalesExecutiveById(userData.id);
-        toastSuccess(formState == 0 ? 'Created' : 'Updated' + 'SuccessFully');
-        setForm({ projects: [] });
-        getAssignedProjects();
-        setShow(false);
-        addAssignedProjects(res?.data?.data?.id);
+        await getAssignedProjects()
+        await getChannelPartners();
+        toastSuccess(formState === 0 ? "Created Successfully" : "Updated Successfully");
+        handleClose();
       }
     } catch (err) {
-      console.error(`Error Posting Sales Executive =>`, err);
-      if (err?.response?.data?.data) {
-        const errors = err?.response?.data?.data;
-        let errorMessages = [];
+      console.error(err);
+      const errorsFromAPI = err?.response?.data?.data;
 
-        for (let key in errors) {
-          if (Array.isArray(errors[key])) {
-            errorMessages.push(...errors[key]);
+      if (errorsFromAPI && typeof errorsFromAPI === 'object') {
+        const fieldErrors = {};
+        let toastShown = false;
+
+        Object.entries(errorsFromAPI).forEach(([field, messages]) => {
+          if (Array.isArray(messages)) {
+            fieldErrors[field] = messages[0];
+            if (!toastShown) toastError(messages[0]);
+            toastShown = true;
           } else {
-            errorMessages.push(errors[key]);
+            fieldErrors[field] = messages;
+            if (!toastShown) toastError(messages);
+            toastShown = true;
           }
-        }
+        });
 
-        errorMessages.forEach((error) => { toastError(error) });
+        setFormErrors(fieldErrors);
+      } else {
+        toastError('An unexpected error occurred while submitting the form');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const addAssignedProjects = async (id) => {
-    let projectIds = form.projects.map((each) => {
-      return each.project_id;
-    });
-    let payload = {
-      user_id: id,
-      user_type: 34,
-      projectIds: projectIds
+  const passwordRules = (pass) => {
+    if (pass.length < 8) return "Minimum 8 characters required";
+    if (!/[a-z]/.test(pass)) return "At least one lowercase letter required";
+    if (!/[A-Z]/.test(pass)) return "At least one uppercase letter required";
+    if (!/[0-9]/.test(pass)) return "At least one digit required";
+    if (!/[@$!%*#?&]/.test(pass))
+      return "At least one special character required";
+    return null;
+  };
+
+  useEffect(() => {
+    if (userData) getAssignedProjects();
+    getChannelPartners();
+  }, []);
+
+
+  const saveProjectsForChannelPartner = async (execId) => {
+    if (!form.projects.length) return;
+
+    const payload = {
+      user_id: execId,
+      user_type: USER_TYPE,
+      projectIds: form.projects.map(p => p.project_id)
     };
-    setLoading(true);
+
     try {
       let res;
       if (formState === 0) {
-        res = await masterClient.post('users-projects-mapping', payload);
+        res = await masterClient.post("users-projects-mapping", payload);
       } else {
-        res = await masterClient.post('updateProjectAssigns', payload);
+        res = await masterClient.post("updateProjectAssigns", payload);
       }
       if (res?.data?.status) {
-        toastSuccess(formState == 0 ? 'Projects Assigned' : 'Projects Updated' + 'SuccessFully');
+        toastSuccess(formState === 0 ? "Projects Assigned Successfully" : "Projects Updated Successfully");
       }
     } catch (err) {
-      console.error(`Error Assigning Projects => ${err}`);
-      toastError('Projects already assigned!');
+      console.error("Error assigning projects", err);
+      toastError("Error assigning projects");
+    }
+  };
+
+
+  const getChannelPartners = async () => {
+    setLoading(true);
+    try {
+      let res = await masterClient.get(`/city-office/city-channel-partners`);
+      if (res?.data?.status && res?.data?.data.length > 0) {
+        setChannelPartners(res?.data?.data);
+      } else {
+        setChannelPartners([]);
+      }
+    } catch (err) {
+      console.error('Error getting Sales Executives', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const createLogin = async (id) => {
-    let body = {
-      role_id: 34,
-      entity_id: id,
-      entity_type: 'Sales Executive',
-      firstname: form.full_name,
-      mobile: form.primary_mobile,
-      username: form.username,
-      password: form.re_type_password,
-      email: form.primary_email,
-      created_by: userData?.id
-    };
+  // ?  get channel partner by id
+  const getChannelPartnersById = async (id) => {
     setLoading(true);
     try {
-      let createUser = await authClient.post('register', body);
-      if (createUser?.data?.status) {
-        toastSuccess('Added Successfully');
-        allCountries();
-        getProjects();
-        setForm({
-          projects: []
-        });
-        setShow(false);
-      }
-    } catch (err) {
-      console.error(`error creating the login details ${err}`);
-      toastError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  // ?  get sales executive by id
-  const getSalesExecutiveById = async (id) => {
-    setLoading(true);
-    try {
-      let res = await masterClient.get(`/city-office/sales-executive/${id}`);
+      let res = await masterClient.get(`/city-office/channel-partners/${id}`);
       if (res?.data?.status) {
         const projects = res?.data?.data?.projects || [];
 
@@ -418,27 +363,39 @@ function AddChannelPartner({ ...props }) {
     }
   };
 
-  const RemoveSalesExec = async (id) => {
+  const RemoveChannelPartner = async (id) => {
     setLoading(true);
     try {
-      let res = await masterClient.delete(`/city-office/sales-executive/${id}`);
+      let res = await masterClient.delete(`/city-office/channel-partners/${id}`);
       if (res?.data?.status) {
         toastSuccess('Deleted Successfully');
-        getSalesExecutives();
+        getChannelPartners();
       }
     } catch (err) {
-      console.error(`Error deleting Sales Executive =>`, err);
+      console.error(`Error deleting CP =>`, err);
       toastError('Error Try Again');
     } finally {
       setLoading(false);
     }
   }
 
-  const removeProject = async (projectId, execId) => {
+  const removeProject = async (projectId, cpId) => {
+
+    if (!cpId) {
+      setForm((prev) => {
+        const updatedProjects = prev.projects.filter((p) => p.project_id !== projectId);
+        return {
+          ...prev,
+          projects: updatedProjects
+        };
+      });
+      return
+    }
+
     const payload = {
       project_id: projectId,
-      user_id: execId,
-      user_type: 34,
+      user_id: cpId,
+      user_type: USER_TYPE,
       updated_by: userData?.id,
     }
 
@@ -450,7 +407,7 @@ function AddChannelPartner({ ...props }) {
         handleShow(execId, 1);
         toastSuccess('Project Removed Successfully');
         setForm((prev) => {
-          const updatedProjects = prev.projects.filter((project) => project.id !== projectId);
+          const updatedProjects = prev.projects.filter((p) => p.id !== projectId);
           return {
             ...prev,
             projects: updatedProjects
@@ -498,23 +455,25 @@ function AddChannelPartner({ ...props }) {
                           <table className="table color-table dark-table table-bordered">
                             <thead>
                               <tr className="text-center">
+                                <th>S.no</th>
                                 <th>Name</th>
-                                <th>Contact Person</th>
-                                <th>Email</th>
                                 <th>Number</th>
+                                <th>Email</th>
                                 <th>Office</th>
                                 <th>Action</th>
                               </tr>
                             </thead>
                             <tbody className="tbody-franchise-performance">
-                              {salesExecutives.length > 0 ? (
-                                salesExecutives.map((ele, index) => (
+                              {channelPartners.length > 0 ? (
+                                channelPartners.map((ele, index) => (
                                   <tr className="text-center" key={index}>
+                                    <td>{index + 1}</td>
                                     <td>
                                       <span className="text-info">{ele.full_name} </span>
                                     </td>
                                     <td>{ele.primary_mobile}</td>
-                                    <td>{ele.date_of_birth}</td>
+                                    <td>{ele.primary_email}</td>
+                                    <td>{userData?.city_office_name}</td>
                                     <td>
                                       <button
                                         onClick={() => handleShow(ele.id, 1)}
@@ -522,14 +481,14 @@ function AddChannelPartner({ ...props }) {
                                         <FaEdit />
                                       </button>
                                       <button className="btn-danger btn mt-0">
-                                        <MdDelete onClick={() => RemoveSalesExec(ele.id)} />
+                                        <MdDelete onClick={() => RemoveChannelPartner(ele.id)} />
                                       </button>
                                     </td>
                                   </tr>
                                 ))
                               ) : (
                                 <tr>
-                                  <td colSpan={4}>No Executives Found</td>
+                                  <td colSpan={4}>No Channel Partners Found</td>
                                 </tr>
                               )}
                             </tbody>
@@ -566,7 +525,7 @@ function AddChannelPartner({ ...props }) {
                       id="full_name"
                       name="full_name"
                       placeholder=""
-                      onChange={hanldeForm}
+                      onChange={handleForm}
                       value={form?.full_name || ''}
                     />
                     <label htmlFor="full_name" className="fw-normal">
@@ -584,7 +543,7 @@ function AddChannelPartner({ ...props }) {
                       className="form-control"
                       name="date_of_birth"
                       placeholder=""
-                      onChange={hanldeForm}
+                      onChange={handleForm}
                       value={form.date_of_birth || ''}
                     />
                     <label htmlFor="date_of_birth" className="fw-normal">
@@ -602,7 +561,7 @@ function AddChannelPartner({ ...props }) {
                       className="form-control"
                       name="date_of_joining"
                       placeholder=""
-                      onChange={hanldeForm}
+                      onChange={handleForm}
                       value={form.date_of_joining || ''}
                     />
                     <label htmlFor="date_of_joining" className="fw-normal">
@@ -611,21 +570,19 @@ function AddChannelPartner({ ...props }) {
                     {formErrors.date_of_joining && (<span className="text-danger">{formErrors.date_of_joining}</span>)}
                   </div>
                 </div>
-<div className="col-md-12">
-                    <h5 className='asint'>Assign to</h5>
+                <div className="col-md-12">
+                  <h5 className='asint'>Assigning to</h5>
+                </div>
+                <div className="col-md-12 mb-3">
+                  <div className="form-floating">
+                    <input type='text'
+                      className="form-control"
+                      value={userData?.city_office_name || ''}
+                      readOnly
+                    />
                   </div>
-                  <div className="col-md-3 mb-3">
-                    <div className="form-floating">
-                     <input type='text'
-                     className="form-control"
-                      
-                      Value="City Off"
-                     />
+                </div>
 
-                    </div>
-
-                  </div>
-            
                 <div className="col-md-4 mb-3"></div>
                 {formState === 0 && (
                   <>
@@ -640,7 +597,7 @@ function AddChannelPartner({ ...props }) {
                           className="form-control"
                           name="username"
                           placeholder=""
-                          onChange={hanldeForm}
+                          onChange={handleForm}
                           value={form.username || ''}
                         />
                         <label htmlFor="username" className="fw-normal">
@@ -658,7 +615,7 @@ function AddChannelPartner({ ...props }) {
                           className="form-control"
                           name="password"
                           placeholder=""
-                          onChange={hanldeForm}
+                          onChange={handleForm}
                           value={form.password || ''}
                         />
                         <label htmlFor="password" className="fw-normal">
@@ -676,7 +633,7 @@ function AddChannelPartner({ ...props }) {
                           className="form-control"
                           name="re_type_password"
                           placeholder=""
-                          onChange={hanldeForm}
+                          onChange={handleForm}
                           value={form.re_type_password || ''}
                         />
                         <label htmlFor="re_type_password" className="fw-normal">
@@ -699,7 +656,7 @@ function AddChannelPartner({ ...props }) {
                       className="form-control"
                       name="primary_email"
                       placeholder=""
-                      onChange={hanldeForm}
+                      onChange={handleForm}
                       value={form?.primary_email || ' '}
                     />
                     <label htmlFor="primary_email" className="fw-normal">
@@ -717,7 +674,7 @@ function AddChannelPartner({ ...props }) {
                       className="form-control"
                       name="secondary_email"
                       placeholder=""
-                      onChange={hanldeForm}
+                      onChange={handleForm}
                       value={form.secondary_email || ''}
                     />
                     <label htmlFor="corner" className="fw-normal">
@@ -735,7 +692,7 @@ function AddChannelPartner({ ...props }) {
                       className="form-control"
                       name="primary_mobile"
                       placeholder=""
-                      onChange={hanldeForm}
+                      onChange={handleForm}
                       value={form?.primary_mobile || ''}
                     />
                     <label htmlFor="primary_mobile" className="fw-normal">
@@ -754,7 +711,7 @@ function AddChannelPartner({ ...props }) {
                       name="secondary_mobile"
                       placeholder=""
                       value={form?.secondary_mobile || ''}
-                      onChange={hanldeForm}
+                      onChange={handleForm}
                     />
                     <label htmlFor="secondary_mobile" className="fw-normal">
                       Secondary Phone <span className="req">*</span>
@@ -763,39 +720,69 @@ function AddChannelPartner({ ...props }) {
                   </div>
                 </div>
 
-               <div className="col-md-12">
-                    <h5 className='asint'>Bussiness Associate Tenure</h5>
+                <div className="col-md-12">
+                  <h5 className='asint'>Bussiness Associate Tenure</h5>
+                </div>
+                <div className="col-md-6 mb-3">
+                  <div className="form-floating">
+                    <input
+                      type="date"
+                      id="tenure_start_date"
+                      className="form-control"
+                      name="tenure_start_date"
+                      onChange={handleForm}
+                      value={form?.tenure_start_date || ''}
+                    />
+                    <label htmlFor="tenure_start_date" className="fw-normal">
+                      Start Date
+                    </label>
                   </div>
-                  <div className="col-md-6 mb-3">
-                    <div className="form-floating">
-                      <input
-                        type="date"
-                        id="corner"
-                        className="form-control"
-                        name="enter"
-                        placeholder=""
-                        required
-                      />
-                      <label htmlFor="corner" className="fw-normal">
-                        Start Date
-                      </label>
-                    </div>
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <div className="form-floating">
+                    <input
+                      type="date"
+                      id="tenure_end_date"
+                      className="form-control"
+                      name="tenure_end_date"
+                      value={form?.tenure_end_date || ''}
+                      onChange={handleForm}
+                    />
+                    <label htmlFor="tenure_end_date" className="fw-normal">
+                      End Date
+                    </label>
                   </div>
-                  <div className="col-md-6 mb-3">
-                    <div className="form-floating">
-                      <input
-                        type="date"
-                        id="corner"
-                        className="form-control"
-                        name="enter"
-                        placeholder=""
-                        required
-                      />
-                      <label htmlFor="corner" className="fw-normal">
-                        End Date
-                      </label>
-                    </div>
+                </div>
+
+                <div className="col-md-12">
+                  <h5 className="asint">{formState === 1 ? 'Edit' : 'Assign'} Projects <span className="req">*</span></h5>
+                </div>
+                <div className="col-md-12 mb-3">
+                  <div className="form-floating">
+                    <select
+                      className="form-select"
+                      name="project"
+                      value={form.project || ''}
+                      onChange={handleForm}>
+                      <option value="default">Select Project</option>
+                      {unAssignedProjects.length > 0 &&
+                        unAssignedProjects.map((ele, index) => (
+                          <option key={index} value={ele.project_id}>
+                            {ele.projectName}
+                          </option>
+                        ))}
+                    </select>
+                    {formErrors.project && (<span className="text-danger">{formErrors.project}</span>)}
                   </div>
+                  <div className="d-flex asign_lists">
+                    {form.projects.length > 0 &&
+                      form.projects.map((ele, index) =>
+                        <h6 key={index}>{ele.projectName}
+                          <IoCloseSharp onClick={() => removeProject(ele.project_id, form?.id)} /> </h6>
+                      )}
+                  </div>
+                </div>
 
 
                 <div className="col-md-12 mt-4 mb-3">
@@ -803,7 +790,7 @@ function AddChannelPartner({ ...props }) {
                 </div>
                 <div className="col-md-4 mb-5">
                   <div className="form-floating">
-                    {form.profile === undefined ? (
+                    {(form.profile === undefined || form.profile === null) ? (
                       <>
                         <input
                           type="file"
@@ -835,7 +822,7 @@ function AddChannelPartner({ ...props }) {
 
                 <div className="col-md-4 mb-3">
                   <div className="form-floating">
-                    {form.bank_details === undefined ? (
+                    {(form.bank_details === undefined || form.bank_details === null) ? (
                       <>
                         <input
                           type="file"
@@ -875,7 +862,7 @@ function AddChannelPartner({ ...props }) {
 
                 <div className="col-md-4 mb-3">
                   <div className="form-floating">
-                    {form.resume === undefined ? (
+                    {(form.resume === undefined || form.resume === null) ? (
                       <>
                         <input
                           type="file"
@@ -903,7 +890,7 @@ function AddChannelPartner({ ...props }) {
 
                 <div className="col-md-4 mb-3">
                   <div className="form-floating">
-                    {form?.aadhar_card === undefined ? (
+                    {(form?.aadhar_card === undefined || form.aadhar_card === null) ? (
                       <>
                         <input
                           type="file"
@@ -933,7 +920,7 @@ function AddChannelPartner({ ...props }) {
                 </div>
 
                 <div className="col-md-4 mb-3">
-                  {form?.pan_card === undefined ? (
+                  {(form?.pan_card === undefined || form.pan_card === null) ? (
                     <div className="form-floating">
                       <input
                         type="file"
