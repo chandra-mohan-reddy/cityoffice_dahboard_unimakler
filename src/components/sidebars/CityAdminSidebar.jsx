@@ -25,11 +25,10 @@ const CityAdminSidebar = ({ user }) => {
                     <MenuItem component={<Link to="/teamleader" />} className={isActive('/addteamleader') ? 'active' : ''}>Team Leader</MenuItem>
                     <MenuItem component={<Link to="/executive" />} className={isActive('/executive') ? 'active' : ''}>Sale Executive</MenuItem>
                 </SubMenu>
-                <SubMenu label="CHANNEL PARTNER">
+                <SubMenu label="Bussiness Associate">
                     <MenuItem component={<Link to="/addchannelpartner" />} className={isActive('/addchannelpartner') ? 'active' : ''}>
-                        Add Channel Partner
+                        Add Bussiness Associate
                     </MenuItem>
-
                 </SubMenu>
                 <SubMenu label="LEAD TRANSFER">
                     <MenuItem component={<Link to="/internal-transfer" />} className={isActive('/internal-transfer') ? 'active' : ''}>

@@ -483,7 +483,7 @@ function AddChannelPartner({ ...props }) {
                 <div className="col-md-12">
                   <div className="white-box block5-franchise-performance">
                     <div className="widget-header d-flex justify-content-between mb-3">
-                      <h4 className="box-title">Channel Partner</h4>
+                      <h4 className="box-title">Bussiness Associate</h4>
                       <Button
                         variant="primary"
                         onClick={() => handleShow(null, 0)}
@@ -499,8 +499,10 @@ function AddChannelPartner({ ...props }) {
                             <thead>
                               <tr className="text-center">
                                 <th>Name</th>
-                                <th>Phone</th>
-                                <th>Date of birth</th>
+                                <th>Contact Person</th>
+                                <th>Email</th>
+                                <th>Number</th>
+                                <th>Office</th>
                                 <th>Action</th>
                               </tr>
                             </thead>
@@ -548,7 +550,7 @@ function AddChannelPartner({ ...props }) {
         <Offcanvas.Body>
           <div className="card p-4">
             <div className="card-header">
-              <h3 className="card-title">{formState === 1 ? 'Edit' : 'Add'} Channel Partner</h3>
+              <h3 className="card-title">{formState === 1 ? 'Edit' : 'Add'} Bussiness Associate</h3>
             </div>
             <form className="custom-validation">
               <div className="row mt-4">
@@ -609,7 +611,21 @@ function AddChannelPartner({ ...props }) {
                     {formErrors.date_of_joining && (<span className="text-danger">{formErrors.date_of_joining}</span>)}
                   </div>
                 </div>
+<div className="col-md-12">
+                    <h5 className='asint'>Assign to</h5>
+                  </div>
+                  <div className="col-md-3 mb-3">
+                    <div className="form-floating">
+                     <input type='text'
+                     className="form-control"
+                      
+                      Value="City Off"
+                     />
 
+                    </div>
+
+                  </div>
+            
                 <div className="col-md-4 mb-3"></div>
                 {formState === 0 && (
                   <>
@@ -747,34 +763,40 @@ function AddChannelPartner({ ...props }) {
                   </div>
                 </div>
 
-                <div className="col-md-12">
-                  <h5 className="asint">{formState === 1 ? 'Edit' : 'Assign'} Projects <span className="req">*</span></h5>
-                </div>
-                <div className="col-md-12 mb-3">
-                  <div className="form-floating">
-                    <select
-                      className="form-select"
-                      name="project"
-                      value={form.project || ''}
-                      onChange={hanldeForm}>
-                      <option value="default">Select Project</option>
-                      {unAssignedProjects.length > 0 &&
-                        unAssignedProjects.map((ele, index) => (
-                          <option key={index} value={ele.project_id}>
-                            {ele.projectName}
-                          </option>
-                        ))}
-                    </select>
-                    {formErrors.project && (<span className="text-danger">{formErrors.project}</span>)}
+               <div className="col-md-12">
+                    <h5 className='asint'>Bussiness Associate Tenure</h5>
                   </div>
-                  <div className="d-flex asign_lists">
-                    {form.projects.length > 0 &&
-                      form.projects.map((ele, index) =>
-                        <h6 key={index}>{ele.projectName}
-                          <IoCloseSharp onClick={() => removeProject(ele.project_id, form?.id)} /> </h6>
-                      )}
+                  <div className="col-md-6 mb-3">
+                    <div className="form-floating">
+                      <input
+                        type="date"
+                        id="corner"
+                        className="form-control"
+                        name="enter"
+                        placeholder=""
+                        required
+                      />
+                      <label htmlFor="corner" className="fw-normal">
+                        Start Date
+                      </label>
+                    </div>
                   </div>
-                </div>
+                  <div className="col-md-6 mb-3">
+                    <div className="form-floating">
+                      <input
+                        type="date"
+                        id="corner"
+                        className="form-control"
+                        name="enter"
+                        placeholder=""
+                        required
+                      />
+                      <label htmlFor="corner" className="fw-normal">
+                        End Date
+                      </label>
+                    </div>
+                  </div>
+
 
                 <div className="col-md-12 mt-4 mb-3">
                   <h5 className="asint">{formState === 1 ? 'Edit' : 'Upload'} Documnets</h5>
@@ -863,9 +885,7 @@ function AddChannelPartner({ ...props }) {
                           onChange={handleImage}
                           accept="application/pdf"
                         />
-                        <label htmlFor="corner" className="fw-normal">
-                          Resume Upload PDF <span className="req">*</span>
-                        </label>
+                        <label htmlFor="corner" className="fw-normal">RERA Upload PDF <span className="req">*</span></label>
                         {formErrors.resume && (<span className="text-danger">{formErrors.resume}</span>)}
                       </>
                     ) : (
