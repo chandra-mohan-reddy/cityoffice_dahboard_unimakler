@@ -6,6 +6,7 @@ const CityAdminSidebar = ({ user }) => {
     const location = useLocation();
     const isActive = (path) => location.pathname === path;
     return (
+        
         <Sidebar>
             <div className="sidebar-logo-box text-center py-3">
                 <Link to="/dashboard">
@@ -19,7 +20,16 @@ const CityAdminSidebar = ({ user }) => {
                 <MenuItem component={<Link to="/projects" />} className={isActive('/projects') ? 'active' : ''}>
                     ASSIGNED PROJECTS
                 </MenuItem>
-                <SubMenu label="OFFICE TEAM">
+                <MenuItem component={<Link to="/lead-registration" />} className={isActive('/lead-registration') ? 'active' : ''}>
+                    Lead Registration
+                </MenuItem>
+                  <MenuItem component={<Link to="/deal-closed" />} className={isActive('/') ? 'active' : ''}>
+                                    Site Visits 
+                                </MenuItem>
+                                <MenuItem component={<Link to="/deal-closed" />} className={isActive('/deal-closed') ? 'active' : ''}>
+                                    Deal Closed
+                                </MenuItem>
+                {/* <SubMenu label="OFFICE TEAM">
                     <MenuItem component={<Link to="/citymanager" />} className={isActive('/addcitymanager') ? 'active' : ''}>City Office Manager</MenuItem>
                     <MenuItem component={<Link to="/generalmanager" />} className={isActive('/addgeneralmanager') ? 'active' : ''}>General Manager</MenuItem>
                     <MenuItem component={<Link to="/teamleader" />} className={isActive('/addteamleader') ? 'active' : ''}>Team Leader</MenuItem>
@@ -44,7 +54,7 @@ const CityAdminSidebar = ({ user }) => {
                     <MenuItem component={<Link to="/leads/add" />} className={isActive('/leads/add') ? 'active' : ''}> Add Lead </MenuItem>
                     <MenuItem component={<Link to="/leads/dropout" />} className={isActive('/leads/dropout') ? 'active' : ''}> Dropout Leads </MenuItem>
                     <MenuItem component={<Link to="/leads/delete" />} className={isActive('/leads/delete') ? 'active' : ''}> Deleted Leads</MenuItem>
-                </SubMenu>
+                </SubMenu> */}
             </Menu>
         </Sidebar >
     )

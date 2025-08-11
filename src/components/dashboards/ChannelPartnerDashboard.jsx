@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { masterClient } from '../../utils/httpClient';
 import Loader from '../common/Loader';
 
-const FranchiseDashboard = () => {
+const ChannelPartnerDashboard = () => {
   const userData = useSelector((state) => state.user.userData);
   const [loader, setLoader] = useState(false);
   const [dashboardCounts, setDashboardCounts] = useState({
@@ -36,15 +36,6 @@ const FranchiseDashboard = () => {
     getDashboardCounts();
   }, []);
 
-  // const dashboardItems = [
-  //   { title: 'Assigned Projects', count: dashboardCounts.projectsCount, route: '/projects' },
-  //   { title: 'Lead Count', count: dashboardCounts.leadsCount, route: '/leads/list' },
-  //   { title: 'Deals Closed', count: dashboardCounts.soldCount, route: '' },
-  //   { title: 'Site Visits', count: dashboardCounts.franchiseCount, route: '' },
-  //   { title: 'Team Leader', count: dashboardCounts.franchiseCount, route: '/teamleaderlist' },
-  //   { title: 'Sales Executive', count: dashboardCounts.franchiseCount, route: '' },
-  // ];
-
   const dashboardItems = [
     { title: 'Assigned Projects', count: dashboardCounts.projectsCount, route: '/projects' },
     { title: 'Deals Closed', count: dashboardCounts.soldCount, route: '' },
@@ -60,12 +51,11 @@ const FranchiseDashboard = () => {
           <div className="card">
             <div className='text-right p-4 d-flex justify-content-between'>
                <h4 className="PremiumAccount1 mb-0 pb-0 dt">
-                        {/* {userData.city_office_name} */}
-                        Dashboard
+                        {userData.city_office_name}
                       </h4>
-              {/* <h4>
+              <h4>
                 Manager Name
-              </h4> */}
+              </h4>
             </div>
             <div className="ad-v2-hom-info">
               <div className="ad-v2-hom-info-inn">
@@ -96,4 +86,4 @@ const FranchiseDashboard = () => {
   );
 };
 
-export default FranchiseDashboard;
+export default ChannelPartnerDashboard;

@@ -51,7 +51,10 @@ const LazyLoad = () => {
   const TeamLeaderdetails = lazy(() => import(`../pages/TeamleadLead/TeamLeaderdetails`));
   const SalesExecutiveslist = lazy(() => import(`../pages/SalesExecutives/SalesExecutiveslist`));
   const SalesExecutivesdetails = lazy(() => import(`../pages/SalesExecutives/SalesExecutivesdetails`));
-  const SalesLeadMonthlyLeads = lazy(() => import('../pages/SaleExecutive/MonthlyLeads'))
+
+  const SalesLeadMonthlyLeads = lazy(() => import('../pages/SaleExecutive/MonthlyLeads'));
+  const Leadregistration = lazy(() => import('../pages/ChannelPartner/Leadregistration'));
+  const DealClosed = lazy(() => import('../pages/ChannelPartner/DealClosed'));
 
 
   // sub-pages
@@ -111,6 +114,9 @@ const LazyLoad = () => {
         <Route path="/saleexecutiveslist" element={<SalesExecutiveslist />} />
         <Route path="/sales-executive/details/:id" element={<SalesExecutivesdetails />} />
         <Route path='/salesexecutive/:id/leads/:month' element={<SalesLeadMonthlyLeads />} /> 
+        <Route path='/lead-registration' element={<Leadregistration />} /> 
+        <Route path='/deal-closed' element={<DealClosed />} /> 
+        {/* <Route path='/lead-registration' element={<Leadregistration />} />  */}
           {/* <Route path="/teamleaderdetails" element={<TeamLeaderList />} />
         <Route path="/teamleaderdetails" element={<TeamLeaderList />} />
         <Route path="/teamleaderdetails" element={<TeamLeaderList />} /> */}
