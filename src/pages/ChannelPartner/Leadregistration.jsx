@@ -1,8 +1,106 @@
-import React from 'react';
-
+import React, { useState, useEffect } from 'react';
+import Loader from '../../components/common/Loader';
+import { toastError } from '../../utils/toast';
+import { masterClient } from '../../utils/httpClient';
 const Leadregistration = () => {
+  // Loader state
+  const [loading, setLoading] = useState(false);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    customerName: '',
+    mobileNo: '',
+    email: '',
+    project: '',
+    comment: '',
+  });
+  const [formErr, setFormErrs] = useState({});
+
+  // Lead registrations state
+  const [leads, setLeads] = useState([]);
+  const [projects, setProjects] = useState({});
+
+
+  const fetchData = async (apiCall, onSuccess) => {
+    setLoading(false)
+    try {
+      let res = await apiCall();
+      if (res?.data?.status) onSuccess(res?.data?.data)
+    } catch (error) {
+      console.error(`Error api call ${error}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Fetch leads from API when component mounts
+  useEffect(() => {
+    fetchData(() => masterClient.post('/user-projects'), setProjects)
+  }, []);
+
+  // Form field change handler
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormErrs((prev) => ({
+      ...prev,
+      [name]: ''
+    }))
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Submit form handler
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validate()) {
+      toastError(`Please fix validation errors`)
+    }
+    setLoading(true);
+    try {
+      console.log(formData)
+    } catch (err) {
+      console.log(`Error Registering lead ${err}`)
+    } finally {
+      setLoading(false)
+    }
+  };
+
+
+  const validate = () => {
+    let errors = {};
+    let isValid = true;
+
+    if (!formData.customerName.trim()) {
+      errors.customerName = 'Customer Name required';
+      isValid = false;
+    }
+    if (!formData.mobileNo.trim()) {
+      errors.mobileNo = 'Mobile required';
+      isValid = false;
+    }
+    if (!formData.email.trim()) {
+      errors.email = 'email required';
+      isValid = false;
+    }
+    if (!formData.project.trim()) {
+      errors.project = 'Please select Project';
+      isValid = false;
+    }
+    if (!formData.comment.trim()) {
+      errors.comment = 'Comments required';
+      isValid = false;
+    }
+    setFormErrs(errors)
+    return isValid;
+  }
+
   return (
     <>
+      {loading && <Loader />}
       <div className="main-content">
         <div className="page-content">
           <div className="container-fluid">
@@ -13,38 +111,84 @@ const Leadregistration = () => {
                     <h3 className="card-title"> Add Lead Registration</h3>
                   </div>
                   <div className="card-body">
-                    <form className="custom-validation" action="#">
-{/*                      
-                      <div className="mb-3">
-                        <label>Sources *</label>
-                        <select className="form-select" name="country" required>
-                          <option value="default">Select Source</option>
-                          <option value="">Portal</option>
+                    <form className="custom-validation" onSubmit={handleSubmit}>
+                      <div className="mb-3 form-floating">
+                        <input
+                          type="text"
+                          name="customerName"
+                          value={formData.customerName}
+                          onChange={handleChange}
+                          className="form-control"
+                          placeholder=''
+                        />
+                        <label htmlFor="customerName" className="fw-normal">
+                          Customer Name <span className="req">*</span>
+                        </label>
+                        {formErr.customerName && (<span className="text-danger">
+                          {formErr.customerName}</span>)}
+                      </div>
+                      <div className="mb-3 form-floating">
+                        <input
+                          type="text"
+                          name="mobileNo"
+                          value={formData.mobileNo}
+                          onChange={handleChange}
+                          className="form-control"
+                          placeholder=''
+                        />
+                        <label htmlFor="mobileNo" className="fw-normal">
+                          Mobile No
+                          <span className="req">*</span>
+                        </label>
+                        {formErr.mobileNo && (<span className="text-danger">
+                          {formErr.mobileNo}</span>)}
+                      </div>
+                      <div className="mb-3 form-floating">
+                        <input
+                          type="text"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          className="form-control"
+                          placeholder=''
+                        />
+                        <label htmlFor="email" className="fw-normal">Email Address
+                          <span className="req">*</span>
+                        </label>
+                        {formErr.email && (<span className="text-danger">
+                          {formErr.email}</span>)}
+                      </div>
+                      <div className="mb-3 form-floating">
+                        <select
+                          className="form-select"
+                          name="project"
+                          value={formData.project}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Project</option>
+                          {projects.map((p, idx) => (
+                            <option key={idx} value={p.project_id}>{p.projectName}</option>
+                          ))}
                         </select>
-                      </div> */}
-                      <div className="mb-3">
-                        <label>Customer Name *</label>
-                        <input type="text" className="form-control" />
+                        <label htmlFor="project" className="fw-normal">
+                          Project <span className="req">*</span>
+                        </label>
+                        {formErr.project && (<span className="text-danger">
+                          {formErr.project}</span>)}
                       </div>
-                      <div className="mb-3">
-                        <label>Mobile No *</label>
-                        <input type="text" className="form-control" />
-                      </div>
-                      <div className="mb-3">
-                        <label>Email Address *</label>
-                        <input type="text" className="form-control" />
-                      </div>
-
-                      <div className="mb-3">
-                        <label>Project *</label>
-                        <select className="form-select" name="country" required>
-                          <option value="default">Select Project </option>
-                          <option value="">Portal</option>
-                        </select>
-                      </div>
-                      <div className="mb-3">
-                        <label>Comment *</label>
-                        <textarea className="form-control"></textarea>
+                      <div className="mb-3 form-floating">
+                        <textarea
+                          className="form-control"
+                          name="comment"
+                          value={formData.comment}
+                          onChange={handleChange}
+                          placeholder=''
+                        />
+                        <label htmlFor="comment" className="fw-normal">
+                          Comment <span className="req">*</span>
+                        </label>
+                        {formErr.comment && (<span className="text-danger">
+                          {formErr.comment}</span>)}
                       </div>
                       <div className="col-12">
                         <button className="btn btn-primary" type="submit">
@@ -61,7 +205,6 @@ const Leadregistration = () => {
                 <div className="card">
                   <div className="card-header">
                     <h3 className="card-title">Lead Registration List</h3>
-                  
                   </div>
                   <div className="card-body">
                     <div className="table-responsive-md">
@@ -69,7 +212,7 @@ const Leadregistration = () => {
                         <thead>
                           <tr>
                             <th>S.No</th>
-                            <th>Customer Number </th>
+                            <th>Customer Name</th>
                             <th>Mobile Number</th>
                             <th>Project Name</th>
                             <th>Register Date</th>
@@ -77,28 +220,25 @@ const Leadregistration = () => {
                           </tr>
                         </thead>
                         <tbody className="block5-franchise-performance">
-                          <tr>
-                            <td>1</td>
-                            <td>Eshwar Kumar</td>
-                            <td>9876543212</td>
-                            <td>Signature Fortius</td>
-                            <td>24 Feb 2025</td>
-                            <td>
-                              <button className="btn btn-primary mt-0" fdprocessedid="ykuw">
-                                <svg
-                                  stroke="currentColor"
-                                  fill="currentColor"
-                                  stroke-width="0"
-                                  viewBox="0 0 576 512"
-                                  height="1em"
-                                  width="1em"
-                                  xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M572.52 241.4C518.29 135.59 410.93 64 288 64S57.68 135.64 3.48 241.41a32.35 32.35 0 0 0 0 29.19C57.71 376.41 165.07 448 288 448s230.32-71.64 284.52-177.41a32.35 32.35 0 0 0 0-29.19zM288 400a144 144 0 1 1 144-144 143.93 143.93 0 0 1-144 144zm0-240a95.31 95.31 0 0 0-25.31 3.79 47.85 47.85 0 0 1-66.9 66.9A95.78 95.78 0 1 0 288 160z"></path>
-                                </svg>{' '}
-                              </button>
-                            </td>
-                          </tr>
-                        
+                          {leads.length > 0 ?
+                            leads.map((lead, idx) => (
+                              <tr key={idx}>
+                                <td>{idx + 1}</td>
+                                <td>{lead.customerName}</td>
+                                <td>{lead.mobileNo}</td>
+                                <td>{lead.project}</td>
+                                <td>{lead.registerDate}</td>
+                                <td>
+                                  <button className="btn btn-primary mt-0">
+                                    {/* Your SVG icon goes here */}
+                                  </button>
+                                </td>
+                              </tr>
+                            )) :
+                            <tr>
+                              <td colSpan={6}>No lead registrations found.</td>
+                            </tr>
+                          }
                         </tbody>
                       </table>
                     </div>
